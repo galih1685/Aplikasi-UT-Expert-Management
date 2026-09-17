@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>UT Expert Management | PT United Tractors Tbk</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{
+ --ut-blue:#0b2e59;--ut-blue2:#123f73;--ut-orange:#f58220;--ut-gold:#f6ad3c;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b778c;--line:#dfe6ef;--danger:#c62828;--success:#1b7f4f;--shadow:0 10px 30px rgba(11,46,89,.08);--radius:16px
+}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.header{background:linear-gradient(120deg,var(--ut-blue),#0f477f);color:white;padding:20px 28px;position:sticky;top:0;z-index:20;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.header-inner{max-width:1500px;margin:auto;display:flex;align-items:center;gap:18px}.logo{width:72px;height:46px;border:2px dashed rgba(255,255,255,.55);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;text-align:center;color:#dfeaff}.brand h1{font-size:22px;margin:0}.brand p{margin:4px 0 0;font-size:12px;opacity:.78}.header-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.container{max-width:1500px;margin:22px auto;padding:0 18px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{border:1px solid var(--line);background:white;padding:11px 16px;border-radius:11px;font-weight:700;color:var(--muted)}.tab.active{background:var(--ut-blue);color:white;border-color:var(--ut-blue)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}.grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-2{grid-template-columns:repeat(2,1fr)}
+.kpi{padding:18px;border-radius:14px;background:#fff;border:1px solid var(--line)}.kpi small{display:block;color:var(--muted);font-weight:700}.kpi strong{font-size:30px;display:block;margin-top:6px;color:var(--ut-blue)}.kpi span{font-size:12px;color:var(--muted)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.section-title h2,.section-title h3{margin:0}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:800}.btn-primary{background:var(--ut-blue);color:white}.btn-orange{background:var(--ut-orange);color:white}.btn-light{background:#eef3f8;color:var(--ut-blue)}.btn-danger{background:#fdecec;color:var(--danger)}
+label{font-size:12px;font-weight:800;color:#4e5b70;display:block;margin-bottom:6px}input,select,textarea{width:100%;padding:10px 11px;border:1px solid #ccd7e5;border-radius:10px;background:white;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--ut-orange);box-shadow:0 0 0 3px rgba(245,130,32,.12)}textarea{min-height:90px;resize:vertical}.help{font-size:11px;color:var(--muted);margin-top:4px}
+.form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.span-2{grid-column:span 2}.span-4{grid-column:span 4}.inline{display:flex;gap:8px}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chip{padding:5px 8px;border-radius:999px;background:#edf4fb;color:var(--ut-blue);font-size:11px;font-weight:800}.chip.orange{background:#fff0e4;color:#a84c00}.chip.green{background:#e8f6ef;color:#176b43}.chip.red{background:#fdecec;color:#a51e1e}
+.cert-list{display:flex;flex-direction:column;gap:10px}.cert-row{display:grid;grid-template-columns:32px 1.35fr 1.05fr .85fr .85fr auto;gap:8px;padding:10px;border:1px solid var(--line);background:#f8fbfe;border-radius:12px;align-items:end;transition:.18s ease}.cert-row:hover{border-color:#b8cce2;box-shadow:0 6px 16px rgba(11,46,89,.06);transform:translateY(-1px)}.cert-field label{margin-bottom:5px}.cert-row .btn{height:42px;min-width:42px}.cert-index{width:32px;height:32px;border-radius:10px;background:#eaf1f8;color:var(--ut-blue);font-weight:900;display:flex;align-items:center;justify-content:center;margin-bottom:5px}.cert-head{display:grid;grid-template-columns:32px 1.35fr 1.05fr .85fr .85fr 42px;gap:8px;padding:0 10px 4px;color:var(--muted);font-size:10px;font-weight:800}.multi-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px}.multi-counter{font-size:12px;color:var(--muted);font-weight:800}.multi-actions{display:flex;gap:6px;flex-wrap:wrap}.multi-actions .btn{padding:8px 10px;font-size:12px}.gen-rule .btn{height:42px;min-width:42px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.table{width:100%;border-collapse:collapse;min-width:1200px}.table th,.table td{padding:11px 10px;border-bottom:1px solid var(--line);font-size:12px;text-align:left;vertical-align:top}.table th{background:#f5f8fc;color:#46566e;position:sticky;top:0;z-index:2}.table tr:hover td{background:#fbfdff}.muted{color:var(--muted)}
+.empty{padding:50px 20px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--ut-blue);font-size:18px;margin-bottom:6px}
+.chart-grid{display:grid;grid-template-columns:1fr 1.35fr 1.35fr;gap:16px}.chart-card{min-height:350px}.chart-wrap{height:280px;position:relative}.insight{padding:12px;border-radius:12px;background:#f6f9fc;border:1px solid var(--line);font-size:12px;line-height:1.55}.insight b{color:var(--ut-blue)}
+.filter-row{display:grid;grid-template-columns:1.4fr repeat(4,1fr) auto;gap:10px}.table-top{margin-bottom:12px}.pagination{display:flex;justify-content:flex-end;gap:6px;margin-top:12px}.page-btn{border:1px solid var(--line);background:white;border-radius:8px;padding:7px 11px}.page-btn.active{background:var(--ut-blue);color:white}
+.modal-backdrop{position:fixed;inset:0;background:rgba(3,18,37,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:18px}.modal{background:white;width:min(1000px,100%);max-height:92vh;overflow:auto;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.25)}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.modal-body{padding:20px}.modal-foot{padding:16px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}.close{border:0;background:#edf2f7;border-radius:8px;width:34px;height:34px}
+.progress{height:8px;background:#e8eef5;border-radius:99px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--ut-orange),var(--ut-gold))}.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.dot-green{background:#22a06b}.dot-red{background:#e34d4d}.dot-gray{background:#9aa6b7}
+.notice{border-left:4px solid var(--ut-orange);background:#fff7ee;padding:12px 14px;border-radius:8px;font-size:12px;line-height:1.55}.hidden{display:none!important}
+.footer{padding:20px;color:var(--muted);text-align:center;font-size:11px}
+/* ===== Corporate Sidebar / Premium UI Refresh ===== */
+body{background:linear-gradient(180deg,#f7f9fc 0%,#eef3f8 100%);min-height:100vh}
+.app-shell{min-height:100vh}
+.sidebar{
+ position:fixed;left:0;top:0;bottom:0;width:278px;z-index:40;
+ display:flex;flex-direction:column;padding:22px 16px 16px;
+ background:linear-gradient(180deg,#082a52 0%,#0b3768 55%,#09294e 100%);
+ color:#fff;box-shadow:12px 0 35px rgba(4,25,50,.16);overflow:auto
+}
+.sidebar::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 0%,rgba(245,130,32,.18),transparent 32%),radial-gradient(circle at 100% 85%,rgba(255,255,255,.06),transparent 30%);pointer-events:none}
+.sidebar>*{position:relative;z-index:1}
+.sidebar-top{display:flex;align-items:center;gap:12px;padding:4px 6px 20px;border-bottom:1px solid rgba(255,255,255,.10)}
+.sidebar-logo{width:56px;height:56px;border:1px dashed rgba(255,255,255,.6);border-radius:14px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;line-height:1.15;color:#e7effb;background:rgba(255,255,255,.05);flex:0 0 auto}
+.sidebar-logo span{font-size:8px;opacity:.85}
+.sidebar-brand{display:flex;flex-direction:column;min-width:0}.sidebar-brand b{font-size:18px;line-height:1.15;letter-spacing:.1px}.sidebar-brand small{font-size:11px;color:#b8c9df;margin-top:5px}
+.sidebar-label{font-size:9px;font-weight:900;letter-spacing:1.5px;color:#8fa8c7;margin:22px 8px 9px;text-transform:uppercase}
+.side-nav{display:flex;flex-direction:column;gap:5px}
+.side-nav .tab{width:100%;display:flex;align-items:center;gap:11px;padding:12px 13px;border:1px solid transparent;border-radius:12px;background:transparent;color:#c6d4e6;font-size:13px;font-weight:700;text-align:left;transition:.18s ease;box-shadow:none}
+.side-nav .tab .nav-ico{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:#bcd1e8;font-size:14px;flex:0 0 auto}
+.side-nav .tab:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(2px)}
+.side-nav .tab:hover .nav-ico{background:rgba(245,130,32,.20);color:#ffbe80}
+.side-nav .tab.active{background:linear-gradient(90deg,rgba(245,130,32,.18),rgba(255,255,255,.09));border-color:rgba(255,255,255,.10);color:#fff;box-shadow:inset 3px 0 0 var(--ut-orange),0 8px 20px rgba(0,0,0,.10)}
+.side-nav .tab.active .nav-ico{background:var(--ut-orange);color:#fff;box-shadow:0 6px 14px rgba(245,130,32,.25)}
+.sidebar-bottom{margin-top:auto;padding:14px 8px 2px}
+.side-note{padding:13px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:10px;line-height:1.5;color:#a9bdd5}.side-note b{color:#fff}
+.side-version{font-size:9px;color:#7992af;margin:9px 3px 0}
+.workspace{margin-left:278px;min-height:100vh;width:calc(100% - 278px)}
+.header{margin-left:278px;width:calc(100% - 278px);position:sticky;top:0;z-index:30;padding:15px 28px;background:rgba(8,42,82,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 8px 28px rgba(11,46,89,.16)}
+.header-inner{max-width:none;margin:0;min-height:54px}
+.header .logo{width:58px;height:40px;border-radius:10px;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.40)}
+.brand h1{font-size:20px;letter-spacing:-.2px}.brand p{font-size:11px;color:#c7d8ed}
+.header-actions{gap:7px}.header-actions .btn{padding:9px 12px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.container{max-width:none;margin:0;padding:26px 28px 34px}
+.tab-page{animation:fadeUp .22s ease}.card{box-shadow:0 8px 28px rgba(11,46,89,.055);border-color:#dce6f0}.kpi{position:relative;overflow:hidden;min-height:118px;background:linear-gradient(145deg,#fff 0%,#f8fbfe 100%);box-shadow:0 8px 24px rgba(11,46,89,.05)}
+.kpi::after{content:"";position:absolute;width:70px;height:70px;right:-25px;top:-25px;border-radius:50%;background:rgba(245,130,32,.09)}
+.kpi strong{font-size:31px;letter-spacing:-.4px}.kpi small{font-size:11px;text-transform:uppercase;letter-spacing:.45px}.section-title{margin-bottom:16px}.section-title h3{font-size:15px;color:#20334d}.section-title .muted{font-size:11px}
+.chart-card{min-height:350px}.insight{background:#f8fafc;border-color:#e2e9f1}.table-wrap{box-shadow:0 5px 18px rgba(11,46,89,.035)}
+.table th{background:linear-gradient(180deg,#f7f9fc,#eef3f8);font-size:11px;text-transform:uppercase;letter-spacing:.25px}.table td{font-size:12px}.table tr:hover td{background:#f7fbff}
+.btn-primary{background:linear-gradient(135deg,#0b2e59,#164c84)}.btn-orange{background:linear-gradient(135deg,#f58220,#d96810)}.btn-light{background:rgba(255,255,255,.10);color:#fff;border:1px solid rgba(255,255,255,.18)}
+.mobile-menu{display:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){.sidebar{width:240px}.workspace,.header{margin-left:240px}.workspace{width:calc(100% - 240px)}.header{width:calc(100% - 240px)}.container{padding:22px 20px 30px}}
+@media(max-width:760px){.sidebar{width:270px;transform:translateX(-105%);transition:transform .22s ease;box-shadow:18px 0 40px rgba(0,0,0,.22)}.sidebar.open{transform:translateX(0)}.workspace,.header{margin-left:0;width:100%}.header{padding:12px 14px}.header .logo{display:none}.header .brand{padding-left:48px}.header-actions{display:none}.mobile-menu{display:flex;position:fixed;left:12px;top:12px;z-index:60;width:40px;height:40px;border:0;border-radius:11px;background:var(--ut-orange);color:#fff;align-items:center;justify-content:center;font-size:19px;box-shadow:0 8px 18px rgba(0,0,0,.22)}.container{padding:16px 12px 28px}.sidebar-top{padding-top:4px}}
+
+@media(max-width:1050px){.grid-4,.form-grid,.chart-grid{grid-template-columns:repeat(2,1fr)}.filter-row{grid-template-columns:1fr 1fr 1fr}.span-4{grid-column:span 2}}@media(max-width:700px){.grid-4,.grid-3,.grid-2,.form-grid,.chart-grid,.filter-row{grid-template-columns:1fr}.span-2,.span-4{grid-column:span 1}.header-inner{align-items:flex-start}.header-actions{margin-left:0}.header{position:static}.brand h1{font-size:18px}}
+
+@media(max-width:980px){.sidebar{width:220px;flex-basis:220px}.workspace{margin-left:220px;width:calc(100% - 220px)}.header{margin-left:220px;width:calc(100% - 220px)}.container{padding:18px}.header-inner{gap:12px}.header-actions{flex-wrap:wrap;justify-content:flex-end}.sidebar-logo{width:44px;height:44px}}
+@media(max-width:760px){.sidebar{transform:translateX(-100%);transition:transform .22s ease;width:250px}.sidebar.open{transform:translateX(0)}.workspace{margin-left:0;width:100%}.header{margin-left:0;width:100%;padding:14px 16px}.header-inner{align-items:flex-start}.header-actions{display:none}.mobile-menu{display:flex;position:fixed;left:12px;top:12px;z-index:50;width:40px;height:40px;border:0;border-radius:10px;background:var(--ut-orange);color:#fff;align-items:center;justify-content:center;font-size:19px;box-shadow:0 6px 16px rgba(0,0,0,.18)}.header .logo{display:none}.header .brand{padding-left:48px}.container{padding:14px 12px 30px}.chart-grid{grid-template-columns:1fr}.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.span-2,.span-4{grid-column:auto}.filter-row{grid-template-columns:1fr 1fr}.table-wrap{font-size:12px}}
+
+@media (max-width: 900px){.cert-head{display:none}.cert-row{grid-template-columns:28px 1fr 1fr}.cert-row .btn{grid-column:3;justify-self:end}.workspace,.header{margin-left:0;width:100%}.sidebar{transform:translateX(-100%);transition:.22s ease}.sidebar.open{transform:translateX(0)}.workspace{padding-top:0}.header{position:sticky}.container{padding:20px 16px}.grid-4,.grid-3{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.span-4{grid-column:span 2}.chart-grid{grid-template-columns:1fr}.header-inner{gap:10px}.mobile-menu{display:grid!important}.header .logo{display:none}}
+@media (max-width:560px){.grid-4,.grid-3,.grid-2,.form-grid{grid-template-columns:1fr}.span-2,.span-4{grid-column:span 1}.cert-row{grid-template-columns:28px 1fr}.cert-row .btn{grid-column:2;justify-self:end}.header{padding:12px 16px}.container{padding:16px 12px}.header-actions .btn:nth-child(1),.header-actions .btn:nth-child(2){display:none}.brand h1{font-size:16px}}
+.expert-picker{display:grid;grid-template-columns:auto 1fr minmax(260px,420px) auto;gap:12px;align-items:center;padding:14px;border:1px solid #dbe5ef;background:linear-gradient(135deg,#f8fbfe,#eef5fb);border-radius:14px}.picker-icon{width:42px;height:42px;border-radius:12px;background:var(--ut-blue);color:#fff;display:grid;place-items:center;font-size:20px;box-shadow:0 8px 16px rgba(11,46,89,.18)}.picker-copy{display:flex;flex-direction:column;gap:3px}.picker-copy b{font-size:13px}.picker-copy span{font-size:11px;color:var(--muted)}.expert-picker select{min-height:42px}.selected-expert{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:10px;margin-top:12px;padding:12px;border:1px solid #d9e5f0;border-radius:14px;background:#fff}.selected-profile-main{display:flex;align-items:center;gap:10px}.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--ut-blue),var(--ut-blue2));color:#fff;display:grid;place-items:center;font-weight:800}.selected-meta{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}.selected-value{font-size:12px;font-weight:800;color:#1d314d}.mode-edit{background:#e8f2ff!important;color:#0b4a85!important}.mode-new{background:#fff0e4!important;color:#a84c00!important}.action-edit{border-color:#cfe0ef!important;background:#f7fbff!important}.table-action-stack{display:flex;flex-direction:column;gap:6px}.btn-mini{padding:7px 9px;font-size:11px;border-radius:8px}.selector-card{position:relative;overflow:hidden}.selector-card:after{content:"";position:absolute;right:-80px;top:-100px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(245,130,32,.12),transparent 65%);pointer-events:none}@media(max-width:900px){.expert-picker{grid-template-columns:auto 1fr}.expert-picker select{grid-column:1 / -1}.selected-expert{grid-template-columns:1fr 1fr}}@media(max-width:560px){.expert-picker{grid-template-columns:1fr}.picker-icon{display:none}.expert-picker select{grid-column:auto}.selected-expert{grid-template-columns:1fr}}
+
+/* ===== Expert Management Experience Layer ===== */
+.dashboard-hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:20px;padding:24px 26px;color:#fff;border:0;background:linear-gradient(135deg,#082a52 0%,#0d467f 62%,#126198 100%);box-shadow:0 16px 34px rgba(6,34,66,.16)}
+.dashboard-hero:before{content:"";position:absolute;right:-70px;top:-95px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,130,32,.30),transparent 67%);pointer-events:none}
+.dashboard-hero:after{content:"";position:absolute;left:42%;bottom:-150px;width:360px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 68%);pointer-events:none}
+.hero-copy,.hero-actions{position:relative;z-index:1}.hero-copy{max-width:760px}.eyebrow{font-size:10px;letter-spacing:1.7px;font-weight:900;color:#ffbf7e;margin-bottom:8px}.dashboard-hero h2{font-size:28px;letter-spacing:-.6px;margin:0 0 8px}.dashboard-hero p{margin:0;color:#d7e6f5;font-size:13px;line-height:1.6;max-width:720px}.hero-meta{margin-top:14px;display:flex;align-items:center;gap:7px;font-size:10px;color:#bcd0e5}.live-dot{width:8px;height:8px;background:#45d391;border-radius:50%;box-shadow:0 0 0 4px rgba(69,211,145,.12)}.hero-sep{opacity:.45}.hero-actions{display:grid;grid-template-columns:1fr;gap:8px;min-width:245px}.hero-action{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);color:#fff;text-align:left;backdrop-filter:blur(6px);transition:.18s ease}.hero-action:hover{transform:translateY(-1px);background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.25)}.hero-action>span{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--ut-orange);font-size:18px}.hero-action b{display:block;font-size:12px}.hero-action small{display:block;font-size:9px;color:#bfd2e7;margin-top:2px}.nav-badge{margin-left:auto;min-width:24px;height:20px;padding:0 7px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.10);color:#d8e7f5;font-size:9px;font-weight:900}.nav-badge.warning{background:rgba(245,130,32,.22);color:#ffd29f}.header .brand h1{letter-spacing:-.4px}.header .brand p{font-size:10px;letter-spacing:.15px}.kpi{transition:.2s ease}.kpi:hover{transform:translateY(-2px);box-shadow:0 14px 28px rgba(11,46,89,.08)}
+@media(max-width:900px){.dashboard-hero{flex-direction:column}.hero-actions{grid-template-columns:repeat(3,1fr);min-width:0}.hero-action{justify-content:flex-start}}
+@media(max-width:620px){.hero-actions{grid-template-columns:1fr}.dashboard-hero{padding:20px}.dashboard-hero h2{font-size:23px}}
+
+/* ===== Authentication / Role Layer ===== */
+.app-root{display:none;min-height:100vh}.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;background:
+ radial-gradient(circle at 15% 10%,rgba(245,130,32,.18),transparent 28%),
+ radial-gradient(circle at 88% 88%,rgba(18,63,115,.18),transparent 32%),
+ linear-gradient(135deg,#eef3f8 0%,#f8fafc 50%,#eaf0f7 100%);}
+.login-shell{width:min(980px,100%);display:grid;grid-template-columns:1.1fr .9fr;background:#fff;border:1px solid #dce6f0;border-radius:24px;overflow:hidden;box-shadow:0 28px 70px rgba(8,42,82,.16)}
+.login-brand{position:relative;overflow:hidden;padding:42px;color:#fff;background:linear-gradient(145deg,#082a52 0%,#0d467f 62%,#126198 100%);}
+.login-brand:before{content:"";position:absolute;right:-90px;top:-120px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(245,130,32,.34),transparent 66%);}
+.login-brand:after{content:"";position:absolute;left:18%;bottom:-170px;width:440px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 68%);}
+.login-brand>*{position:relative;z-index:1}.login-logo{width:76px;height:54px;border:2px dashed rgba(255,255,255,.55);border-radius:12px;display:grid;place-items:center;text-align:center;font-size:10px;line-height:1.15;background:rgba(255,255,255,.05);margin-bottom:28px}.login-eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:900;color:#ffbf7e}.login-brand h2{font-size:31px;line-height:1.08;margin:9px 0 12px;letter-spacing:-.8px}.login-brand p{max-width:520px;color:#d7e6f5;font-size:13px;line-height:1.7;margin:0}.login-points{display:grid;gap:9px;margin-top:24px}.login-point{display:flex;gap:10px;align-items:center;font-size:11px;color:#c9d8e8}.login-point i{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:rgba(245,130,32,.17);color:#ffc184;font-style:normal;font-weight:900}.login-form{padding:42px 38px}.login-form h3{margin:0;color:var(--ut-blue);font-size:22px}.login-form .muted{margin-top:5px;font-size:12px}.login-card{margin-top:24px;display:grid;gap:14px}.login-submit{width:100%;margin-top:6px;height:46px;font-size:13px}.login-hint{padding:11px 12px;background:#f6f9fc;border:1px solid var(--line);border-radius:11px;font-size:10px;color:var(--muted);line-height:1.55}.login-error{display:none;padding:10px 12px;border-radius:10px;background:#fdecec;color:#a51e1e;border:1px solid #f4cccc;font-size:11px;font-weight:700}.cloud-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:900}.cloud-badge.loading{color:#ffe0b4}.cloud-badge.saving{color:#ffe0b4}.cloud-badge.success{color:#b8f3d4}.cloud-badge.error{color:#ffd0d0}
+.user-session{display:flex;align-items:center;gap:9px;padding:7px 10px;margin-left:auto;border:1px solid rgba(255,255,255,.14);border-radius:11px;background:rgba(255,255,255,.06)}.user-avatar{width:30px;height:30px;border-radius:9px;background:var(--ut-orange);display:grid;place-items:center;color:#fff;font-weight:900;font-size:11px}.user-session b{display:block;font-size:11px}.user-session small{display:block;font-size:9px;color:#c8d8ea;margin-top:1px}.logout-btn{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;border-radius:9px;padding:8px 10px;font-weight:800;font-size:10px}.logout-btn:hover{background:rgba(255,255,255,.11)}.sidebar-user{margin-top:10px;padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:9px}.sidebar-user .user-avatar{width:28px;height:28px;font-size:10px}.sidebar-user b{display:block;font-size:10px}.sidebar-user small{display:block;font-size:9px;color:#a9bdd5;margin-top:2px}.sidebar-logout{margin-left:auto;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#d9e6f4;border-radius:8px;padding:7px 8px;font-size:10px;font-weight:800;cursor:pointer}.sidebar-logout:hover{background:rgba(245,130,32,.18);border-color:rgba(245,130,32,.35);color:#fff}.role-viewer .admin-only{display:none!important}.role-viewer .side-admin-only{display:none!important}@media(max-width:820px){.login-shell{grid-template-columns:1fr}.login-brand{padding:30px}.login-form{padding:30px 24px}.login-brand h2{font-size:27px}}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-screen">
+  <div class="login-shell">
+    <div class="login-brand">
+      <div class="login-logo">SPACE<br>LOGO UT</div>
+      <div class="login-eyebrow">PT UNITED TRACTORS TBK</div>
+      <h2>Expert Management</h2>
+      <p>Enterprise Expert Information System untuk mengelola master data expert secara terintegrasi, terstruktur, dan siap digunakan sebagai dasar insight manajemen.</p>
+      <div class="login-points">
+        <div class="login-point"><i>✓</i><span>Single source of expert data</span></div>
+        <div class="login-point"><i>✓</i><span>Dashboard & analytics terintegrasi</span></div>
+        <div class="login-point"><i>✓</i><span>Role-based access: Admin & Member</span></div>
+      </div>
+    </div>
+    <div class="login-form">
+      <h3>Sign In</h3>
+      <div class="muted">Masuk untuk melanjutkan ke Expert Management.</div>
+      <form id="loginForm" class="login-card">
+        <div><label>Username</label><input id="loginUsername" autocomplete="username" required placeholder="Masukkan username"></div>
+        <div><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Masukkan password"></div>
+        <div id="loginError" class="login-error">Username atau password tidak sesuai.</div>
+        <button class="btn btn-orange login-submit" type="submit">Masuk ke Sistem</button>
+      </form>
+      <div class="login-hint"><b>Hak akses</b><br>Admin: kelola seluruh fungsi sistem.<br>Member: viewer data, tanpa hak mengubah master data.</div>
+    </div>
+  </div>
+</div>
+<div id="appRoot" class="app-root">
+<header class="header"><div class="header-inner"><div class="logo">SPACE<br>LOGO UT</div><div class="brand"><h1>Expert Management</h1><p>Enterprise Expert Information System • PT United Tractors Tbk</p></div><div id="userSession" class="user-session"></div><div class="header-actions"><button class="btn btn-light admin-only" onclick="downloadTemplate()">Template Excel</button><button class="btn btn-light admin-only" onclick="exportReportExcel()">Laporan Excel</button><button class="btn btn-light" onclick="manualCloudSync()" title="Muat data terbaru dari Google Sheets"><span id="cloudStatus" class="cloud-badge loading" title="Google Sheets ID: 1skrzoyValE_WkLneAXYn9zbyFk9J2_pRAbaNH0625_Y">⟳ Sinkronisasi</span></button><button class="btn btn-orange admin-only" onclick="openImport()">Import Excel</button><button class="btn btn-primary admin-only" onclick="openExpert()">+ Tambah Expert</button></div></div></header>
+<button class="mobile-menu" onclick="toggleSidebar()" aria-label="Buka menu">☰</button>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">SPACE<br><span>LOGO UT</span></div>
+    <div class="sidebar-brand"><b>Expert Management</b><small>PT United Tractors Tbk</small></div>
+  </div>
+  <div class="sidebar-label">EXPERT MANAGEMENT</div>
+  <nav class="side-nav">
+    <button class="tab active" data-tab="dashboard"><span class="nav-ico">▦</span><span>Dashboard</span><span class="nav-badge" id="navTotal">0</span></button>
+    <button class="tab" data-tab="experts"><span class="nav-ico">▤</span><span>Master Data</span></button>
+    <button id="navInput" class="tab side-admin-only" data-tab="input"><span class="nav-ico">＋</span><span>Input Expert</span></button>
+    <button class="tab" data-tab="quality"><span class="nav-ico">✓</span><span>Data Quality</span><span class="nav-badge warning" id="navQuality">0</span></button>
+  </nav>
+  <div class="sidebar-label">SYSTEM & CONTROL</div>
+  <nav class="side-nav">
+    <button id="navSettings" class="tab side-admin-only" data-tab="settings"><span class="nav-ico">⚙</span><span>Reference & Settings</span></button>
+  </nav>
+  <div class="sidebar-user" id="sidebarUser"></div><div class="sidebar-bottom"><div class="side-note">Enterprise Expert Information System<br><b>PT United Tractors Tbk</b><br><span style="opacity:.8">Single source of expert data</span></div><div class="side-version">v2.2 • Role-based access • Local-first prototype</div></div>
+</aside>
+<div class="workspace">
+<div class="container">
+
+<section id="dashboard" class="tab-page">
+<div class="dashboard-hero card">
+  <div class="hero-copy">
+    <div class="eyebrow">UNITED TRACTORS • EXPERT MANAGEMENT</div>
+    <h2>Expert Capability at a Glance</h2>
+    <p>Satu ekosistem untuk mengelola profil, pilar keahlian, prestasi, pendidikan, sertifikasi, dan insight expert secara terintegrasi.</p>
+    <div class="hero-meta"><span class="live-dot"></span><span id="dashboardStatus">Data siap dipantau</span><span class="hero-sep">•</span><span id="dashboardDate">-</span></div>
+  </div>
+  <div class="hero-actions">
+    <button class="hero-action admin-only" onclick="openExpert()"><span>＋</span><div><b>Tambah Expert</b><small>Buat master data baru</small></div></button>
+    <button class="hero-action admin-only" onclick="openImport()"><span>↥</span><div><b>Import Excel</b><small>Masukkan data massal</small></div></button>
+    <button class="hero-action" onclick="switchTab('quality')"><span>✓</span><div><b>Data Quality</b><small>Periksa kelengkapan</small></div></button>
+    <button class="hero-action admin-only" onclick="exportReportExcel()"><span>⇩</span><div><b>Export Laporan</b><small>Generate laporan Excel</small></div></button>
+  </div>
+</div>
+<div style="height:16px"></div>
+<div class="grid grid-4" id="kpis"></div>
+<div style="height:16px"></div>
+<div class="chart-grid"><div class="card chart-card"><div class="section-title"><h3>Generasi</h3><span class="muted">Birth cohort</span></div><div class="chart-wrap"><canvas id="genChart"></canvas></div></div><div class="card chart-card"><div class="section-title"><h3>Expert per Pilar</h3><span class="muted">Headcount</span></div><div class="chart-wrap"><canvas id="pillarChart"></canvas></div></div><div class="card chart-card"><div class="section-title"><h3>Golongan</h3><span class="muted">Sub-group</span></div><div class="chart-wrap"><canvas id="gradeChart"></canvas></div></div></div>
+<div style="height:16px"></div><div class="grid grid-2"><div class="card"><div class="section-title"><h3>Komposisi Area</h3><span class="muted">Top 10</span></div><div id="areaList"></div></div><div class="card"><div class="section-title"><h3>Alert Sertifikasi</h3><span class="muted">berdasarkan tanggal berlaku</span></div><div id="certAlerts"></div></div></div>
+</section>
+
+<section id="experts" class="tab-page hidden"><div class="card"><div class="section-title"><div><h2>Master Data Expert</h2><div class="muted">Satu sumber data untuk profil, pengalaman, prestasi, pendidikan, dan sertifikasi. Pilih <b>Update Data</b> pada expert untuk melanjutkan perubahan.</div></div><div class="toolbar"><button class="btn btn-light admin-only" onclick="exportExcel()">Export Excel</button><button class="btn btn-orange admin-only" onclick="exportReportExcel()">Laporan Excel</button><button class="btn btn-light admin-only" onclick="exportJSON()">Backup JSON</button></div></div><div class="filter-row table-top"><input id="q" placeholder="Cari nama, NRP, email, area..." oninput="renderTable()"><select id="fPilar" onchange="renderTable()"><option value="">Semua Pilar</option></select><select id="fArea" onchange="renderTable()"><option value="">Semua Area</option></select><select id="fGen" onchange="renderTable()"><option value="">Semua Generasi</option><option>Gen X</option><option>Gen Y</option><option>Gen Z</option><option>Gen Alpha</option></select><select id="fGrade" onchange="renderTable()"><option value="">Semua Golongan</option></select><button class="btn btn-light" onclick="resetFilters()">Reset</button></div><div id="tableHost"></div><div id="pagination" class="pagination"></div></div></section>
+
+<section id="input" class="tab-page hidden">
+<div class="card selector-card">
+  <div class="section-title">
+    <div><h2>Input & Update Expert</h2><div class="muted">Tambah expert baru atau pilih expert yang sudah ada untuk memperbarui profil, prestasi, dan sertifikasi.</div></div>
+    <span class="chip mode-new" id="formModeBadge">MODE: EXPERT BARU</span>
+  </div>
+  <div class="expert-picker">
+    <div class="picker-icon">↻</div>
+    <div class="picker-copy"><b>Pilih Expert dari Master Data</b><span>Nama, NRP, pilar, dan area langsung dimuat ke form.</span></div>
+    <select id="expertSelector" onchange="selectExpertForUpdate(this.value)"><option value="">+ Tambah Expert Baru</option></select>
+    <button type="button" class="btn btn-light" onclick="switchTab('experts')">Lihat Daftar</button>
+  </div>
+  <div id="selectedExpertSummary" class="selected-expert hidden"></div>
+</div>
+<div class="card"><div class="section-title"><div><h2>Form Data Expert</h2><div class="muted">NRP menjadi unique key untuk mencegah data duplikat.</div></div><span class="chip">Data turunan dihitung otomatis</span></div><form id="expertForm"><div class="form-grid"><div><label>Nama *</label><input name="name" required></div><div><label>NRP *</label><input name="nrp" required></div><div><label>Handphone</label><input name="phone"></div><div><label>Email</label><input name="email" type="email"></div><div><label>Area *</label><input name="area" required placeholder="Contoh: HO, Site, Branch..."></div><div><label>Pilar Expert *</label><select name="pillar" required></select></div><div><label>Tanggal Lahir *</label><input name="birthDate" type="date" required></div><div><label>Tanggal Masuk Kerja *</label><input name="joinDate" type="date" required></div><div><label>Golongan *</label><select name="grade" required></select></div><div><label>Pendidikan Terakhir</label><select name="education"><option value="">Pilih</option><option>SMA/SMK</option><option>D1/D2/D3</option><option>D4/S1</option><option>S2</option><option>S3</option><option>Lainnya</option></select></div><div class="span-2"><label>Prestasi</label><textarea name="achievements" placeholder="Satu prestasi per baris atau pisahkan dengan ;"></textarea><div class="help">Satu expert dapat memiliki lebih dari satu prestasi. Saat update, seluruh daftar tetap dipertahankan kecuali Anda mengubahnya.</div></div><div class="span-4"><label>Sertifikasi Profesi</label><div class="notice" style="margin-bottom:10px">Setiap sertifikasi disimpan sebagai record terpisah. Pilih expert di atas untuk menambah atau memperbarui sertifikasi yang sudah ada.</div><div class="cert-head"><span>#</span><span>Nama Sertifikasi</span><span>Nama Lembaga</span><span>Tanggal Penerbitan</span><span>Masa Berlaku s/d</span><span></span></div><div id="certInputs" class="cert-list"></div><div class="multi-toolbar"><div id="certCounter" class="multi-counter">0 sertifikasi</div><div class="multi-actions"><button type="button" class="btn btn-light" onclick="addCertRow()">+ 1 Sertifikasi</button><button type="button" class="btn btn-light" onclick="addCertRows(3)">+ 3 Sertifikasi</button><button type="button" class="btn btn-orange" onclick="addCertRows(5)">+ 5 Sertifikasi</button></div></div></div></div><div class="notice" style="margin-top:14px">Generasi mengikuti konfigurasi cohort di menu <b>Reference & Settings</b>. Masa kerja dihitung dari tanggal masuk kerja sampai hari ini dan diperbarui setiap kali aplikasi dibuka.</div><div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px"><button type="button" class="btn btn-light" onclick="resetForm()">Bersihkan / Expert Baru</button><button class="btn btn-orange" id="submitExpertBtn" type="submit">Simpan Expert</button></div></form></div></section>
+
+<section id="quality" class="tab-page hidden"><div class="card"><div class="section-title"><div><h2>Data Quality</h2><div class="muted">Pendeteksian sederhana untuk membuat master data lebih layak pakai.</div></div><button class="btn btn-light" onclick="runQuality()">Refresh</button></div><div id="qualityHost"></div></div></section>
+
+<section id="settings" class="tab-page hidden"><div class="grid grid-2"><div class="card"><div class="section-title"><h3>Reference Data</h3></div><div class="grid grid-2"><div><label>Pilar Expert</label><textarea id="pillarRef"></textarea></div><div><label>Golongan</label><textarea id="gradeRef"></textarea></div></div><button class="btn btn-primary" style="margin-top:12px" onclick="saveRefs()">Simpan Reference</button></div><div class="card"><div class="section-title"><div><h3>Generational Rules</h3><div class="muted" style="margin-top:4px">Rule default dapat diedit dan ditambah sesuai kebutuhan organisasi.</div></div><span class="chip orange">Editable</span></div><div class="notice"><b>Acuan saat ini:</b> Generasi X = 1965–1980 • Generasi Y = 1981–1996 • Generasi Z = 1997–2012. Rule ini menjadi konfigurasi aplikasi dan dapat diedit tanpa mengubah struktur database.</div><div id="genRules" style="margin-top:12px"></div><div class="toolbar" style="margin-top:12px"><button class="btn btn-light" type="button" onclick="addGenRule()">+ Tambah Rule</button><button class="btn btn-light" type="button" onclick="resetGenRules()">Reset ke Acuan</button><button class="btn btn-primary" type="button" onclick="saveGenRules()">Simpan Rule Generasi</button></div></div></div><div style="height:16px"></div><div class="card"><div class="section-title"><h3>Storage</h3></div><div class="muted" id="storageInfo"></div><div class="toolbar" style="margin-top:12px"><button class="btn btn-light" onclick="loadDemo()">Isi Data Demo</button><button class="btn btn-danger" onclick="clearAll()">Hapus Semua Data</button></div></div></section>
+
+<div class="footer">Expert Management • PT United Tractors Tbk • Local-first prototype • Ruang logo disediakan pada header.</div>
+</div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="expertModal"><div class="modal"><div class="modal-head"><h3 id="modalTitle">Tambah Expert</h3><button class="close" onclick="closeModal('expertModal')">×</button></div><div class="modal-body"><div id="modalFormHost"></div></div></div></div>
+<div class="modal-backdrop" id="importModal"><div class="modal"><div class="modal-head"><h3>Import Data Excel</h3><button class="close" onclick="closeModal('importModal')">×</button></div><div class="modal-body"><div class="notice">Header yang dikenali secara otomatis antara lain: Nama, NRP, Handphone/HP, Email, Area, Pilar Expert, Tanggal Lahir, Tahun Lahir, Tahun Masuk, Tanggal Masuk Kerja, Golongan, Pendidikan, Prestasi, Nama Sertifikasi, Lembaga Sertifikasi, Tanggal Penerbitan Sertifikasi, Masa Berlaku Sertifikasi. Bila satu baris berisi lebih dari satu sertifikasi, sertifikasi dapat dirapikan kembali melalui menu Input Expert.</div><div style="margin-top:14px"><label>Pilih file .xlsx / .xls / .csv</label><input id="excelFile" type="file" accept=".xlsx,.xls,.csv" onchange="previewImport(event)"></div><div id="importPreview" style="margin-top:14px"></div></div><div class="modal-foot"><button class="btn btn-light" onclick="closeModal('importModal')">Batal</button><button class="btn btn-orange" onclick="commitImport()">Import</button></div></div></div>
+</div>
+
+<script>
+const STORAGE='ut_expert_master_v1';
+const REFS='ut_expert_refs_v1';
+const GEN='ut_expert_genrules_v1';
+let experts=JSON.parse(localStorage.getItem(STORAGE)||'[]');
+experts=experts.map(x=>({...x,certifications:(x.certifications||[]).map(c=>({...c,issueDate:c.issueDate||((c.year&&/^\d{4}$/.test(String(c.year)))?`${c.year}-01-01`:'')}))}));
+let refs=JSON.parse(localStorage.getItem(REFS)||'null')||{pillars:['AE','PRE','TPSE','TCDE','PSC'],grades:['III','IVa','IVb','IVc','IVd','IVe','IVf','Va','Vb','Vc','Vd']};
+const DEFAULT_GEN_RULES=[
+ {name:'Generasi X',start:1965,end:1980},
+ {name:'Generasi Y',start:1981,end:1996},
+ {name:'Generasi Z',start:1997,end:2012}
+];
+const GEN_RULE_VERSION='2';
+/* ===== Google Apps Script Cloud Integration =====
+   Endpoint: Google Apps Script Web App provided by the user.
+   The browser keeps a local cache, while Google Sheets is the shared source of truth.
+*/
+const GOOGLE_SHEET_ID='1skrzoyValE_WkLneAXYn9zbyFk9J2_pRAbaNH0625_Y';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxlRcQLgUryJ5fzhlLKiOgctYTYd1q46N5J7pCN3K2iHZpPsgwhNHpQ62zxzHnsvkUQ/exec';
+let cloudHydrating=false, cloudSaving=false, cloudTimer=null, cloudLoaded=false, cloudLastSync=null;
+
+let storedGenRules=JSON.parse(localStorage.getItem(GEN)||'null');
+let genRules=(localStorage.getItem(GEN+'_version')===GEN_RULE_VERSION && Array.isArray(storedGenRules) && storedGenRules.length)
+ ? storedGenRules
+ : DEFAULT_GEN_RULES.map(x=>({...x}));
+let editingId=null, importRows=[], currentPage=1, pageSize=15, charts={};
+const $=s=>document.querySelector(s);
+const uid=()=>crypto?.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(16).slice(2);
+const AUTH_USERS={
+ admin:{username:'admin',password:'12345',role:'Admin',label:'Full Access'},
+ expert:{username:'Expert',password:'12345',role:'Member',label:'Viewer'}
+};
+let currentUser=null;
+function isAdmin(){return currentUser?.role==='Admin'}
+function requireAdmin(message='Fitur ini hanya dapat digunakan oleh Admin.') { if(isAdmin()) return true; alert(message); return false; }
+function applyRoleAccess(){
+ document.body.classList.toggle('role-admin',isAdmin());
+ document.body.classList.toggle('role-viewer',!isAdmin());
+ const inputNav=$('#navInput'),settingsNav=$('#navSettings');
+ if(inputNav)inputNav.style.display=isAdmin()?'flex':'none';
+ if(settingsNav)settingsNav.style.display=isAdmin()?'flex':'none';
+ const adminEls=document.querySelectorAll('.admin-only');
+ adminEls.forEach(el=>el.style.display=isAdmin()?'':'none');
+ const userHtml=`<div class="user-avatar">${isAdmin()?'A':'E'}</div><div style="min-width:0"><b>${escapeHtml(currentUser?.username||'')}</b><small>${escapeHtml(currentUser?.role||'')}</small></div><button class="logout-btn" type="button" onclick="logout()">Keluar</button>`;
+ const us=$('#userSession');if(us)us.innerHTML=userHtml;
+ const su=$('#sidebarUser');if(su)su.innerHTML=`<div class="user-avatar">${isAdmin()?'A':'E'}</div><div style="min-width:0"><b>${escapeHtml(currentUser?.username||'')}</b><small>${escapeHtml(currentUser?.label||'')}</small></div><button class="sidebar-logout" type="button" onclick="logout()" title="Keluar dari sistem">↪</button>`;
+}
+function login(username,password){
+ const found=Object.values(AUTH_USERS).find(u=>u.username===username&&u.password===password);
+ if(!found)return false;
+ currentUser={username:found.username,role:found.role,label:found.label};
+ sessionStorage.setItem('ut_expert_session',JSON.stringify(currentUser));
+ $('#loginScreen').style.display='none';
+ $('#appRoot').style.display='block';
+ applyRoleAccess();
+ init();
+ return true;
+}
+function logout(){if(!currentUser)return;if(!confirm('Keluar dari Expert Management?'))return;sessionStorage.removeItem('ut_expert_session');currentUser=null;location.reload()}
+function bootstrapAuth(){
+ const saved=JSON.parse(sessionStorage.getItem('ut_expert_session')||'null');
+ if(saved?.username&&saved?.role){currentUser=saved;$('#loginScreen').style.display='none';$('#appRoot').style.display='block';applyRoleAccess();init();}
+ else{$('#loginScreen').style.display='flex';$('#appRoot').style.display='none';}
+ $('#loginForm').addEventListener('submit',e=>{e.preventDefault();const ok=login($('#loginUsername').value.trim(),$('#loginPassword').value);const err=$('#loginError');if(err)err.style.display=ok?'none':'block';if(!ok)$('#loginPassword').focus()});
+}
+function persistLocal(){
+ localStorage.setItem(STORAGE,JSON.stringify(experts));
+ localStorage.setItem(REFS,JSON.stringify(refs));
+ localStorage.setItem(GEN,JSON.stringify(genRules));
+ localStorage.setItem(GEN+'_version',GEN_RULE_VERSION);
+ updateStorageInfo();
+}
+function cloudPayload(){
+ return {
+  experts,
+  refs:{pillars:[...(refs.pillars||[])],grades:[...(refs.grades||[])]},
+  genRules:[...(genRules||[])]
+ };
+}
+function queueCloudSave(delay=280){
+ if(cloudHydrating||!APPS_SCRIPT_URL||!isAdmin())return;
+ clearTimeout(cloudTimer);
+ cloudTimer=setTimeout(()=>postCloudData(cloudPayload()),delay);
+}
+function save(){
+ persistLocal();
+ queueCloudSave();
+}
+function jsonpCloudGet(){
+ return new Promise((resolve,reject)=>{
+  const cb='__utExpertCloud_'+Date.now()+'_'+Math.random().toString(16).slice(2);
+  let script=document.createElement('script');
+  let settled=false;
+  const cleanup=()=>{try{script.remove()}catch(e){} try{delete window[cb]}catch(e){}};
+  const timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Timeout mengakses Google Sheets.'));},15000);
+  window[cb]=(data)=>{if(settled)return;settled=true;clearTimeout(timer);cleanup();if(data&&data.ok!==false)resolve(data);else reject(new Error(data?.error||'Gagal membaca data cloud.'));};
+  script.onerror=()=>{if(settled)return;settled=true;clearTimeout(timer);cleanup();reject(new Error('Endpoint Google Apps Script tidak dapat diakses.'));};
+  script.src=APPS_SCRIPT_URL+'?action=getData&sheetId='+encodeURIComponent(GOOGLE_SHEET_ID)+'&callback='+encodeURIComponent(cb)+'&_='+Date.now();
+  document.head.appendChild(script);
+ });
+}
+function postCloudData(payload){
+ if(cloudSaving||!APPS_SCRIPT_URL||!isAdmin())return;
+ cloudSaving=true;
+ const frameName='utCloudSaveFrame_'+Date.now();
+ const iframe=document.createElement('iframe');
+ iframe.name=frameName;iframe.id=frameName;iframe.style.display='none';
+ document.body.appendChild(iframe);
+ const form=document.createElement('form');
+ form.method='POST';form.action=APPS_SCRIPT_URL;form.target=frameName;form.style.display='none';
+ const fields={action:'saveData',sheetId:GOOGLE_SHEET_ID,payload:JSON.stringify(payload)};
+ Object.entries(fields).forEach(([name,value])=>{const i=document.createElement('input');i.type='hidden';i.name=name;i.value=value;form.appendChild(i)});
+ document.body.appendChild(form);
+ const cleanup=()=>{cloudSaving=false;try{form.remove();iframe.remove()}catch(e){}};
+ const handler=(ev)=>{
+  if(ev.data?.source!=='UT_EXPERT_CLOUD')return;
+  window.removeEventListener('message',handler);
+  if(ev.data.ok){cloudLastSync=new Date();updateCloudBadge('success');}
+  else updateCloudBadge('error');
+  cleanup();
+ };
+ window.addEventListener('message',handler);
+ setTimeout(cleanup,20000);
+ form.submit();
+ updateCloudBadge('saving');
+}
+async function loadCloudData(silent=false){
+ if(!APPS_SCRIPT_URL||cloudHydrating)return false;
+ cloudHydrating=true;updateCloudBadge('loading');
+ try{
+  const data=await jsonpCloudGet();
+  if(Array.isArray(data.experts))experts=data.experts.map(x=>({...x,certifications:Array.isArray(x.certifications)?x.certifications:[],achievements:Array.isArray(x.achievements)?x.achievements:[]}));
+  if(data.refs?.pillars?.length||data.refs?.grades?.length)refs={pillars:data.refs.pillars||refs.pillars,grades:data.refs.grades||refs.grades};
+  if(Array.isArray(data.genRules)&&data.genRules.length)genRules=data.genRules;
+  persistLocal();cloudLoaded=true;cloudLastSync=new Date();updateCloudBadge('success');renderAll();
+  if(!silent) alert(`Sinkronisasi berhasil. ${experts.length} expert dimuat dari Google Sheets.`);
+  return true;
+ }catch(err){
+  updateCloudBadge('error');
+  if(!silent) alert('Google Sheets belum dapat diakses. Aplikasi tetap menggunakan cache lokal.\\n\\n'+err.message);
+  return false;
+ }finally{cloudHydrating=false;}
+}
+function manualCloudSync(){loadCloudData(false)}
+function updateCloudBadge(state){
+ const el=$('#cloudStatus'); if(!el)return;
+ const map={
+  loading:['⟳ Sinkronisasi...','loading'],
+  saving:['↑ Menyimpan...','saving'],
+  success:[`● Terhubung${cloudLastSync?' • '+cloudLastSync.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):''}`,'success'],
+  error:['! Cloud offline • Cache lokal','error']
+ };
+ const [label,cls]=map[state]||map.success;
+ el.textContent=label;el.className='cloud-badge '+cls;
+}
+
+function saveRefs(){if(!requireAdmin())return;refs.pillars=$('#pillarRef').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);refs.grades=$('#gradeRef').value.split(/\n|,/).map(s=>s.trim()).filter(Boolean);persistLocal();queueCloudSave();hydrateReferences();alert('Reference tersimpan dan siap disinkronkan ke Google Sheets.');}
+function saveGenRules(){if(!requireAdmin())return;
+ const next=[...document.querySelectorAll('.gen-rule')].map(r=>({name:r.querySelector('.gn').value.trim(),start:+r.querySelector('.gs').value,end:+r.querySelector('.ge').value})).filter(x=>x.name&&x.start&&x.end);
+ if(!next.length){alert('Minimal harus ada 1 rule generasi.');return}
+ const invalid=next.find(x=>x.start>x.end||x.start<1800||x.end>2200);
+ if(invalid){alert('Periksa tahun rule generasi. Tahun mulai harus lebih kecil atau sama dengan tahun akhir.');return}
+ genRules=next;
+ localStorage.setItem(GEN,JSON.stringify(genRules));
+ localStorage.setItem(GEN+'_version',GEN_RULE_VERSION);
+ experts=experts.map(x=>({...x,generation:getGeneration(x.birthDate)}));
+ save();
+ hydrateReferences();
+ alert('Rule generasi tersimpan dan data turunan diperbarui.');
+ renderAll();
+}
+function calcAge(date){if(!date)return null;const d=new Date(date+'T00:00:00');const t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return a;}
+function calcTenure(date){if(!date)return '-';const d=new Date(date+'T00:00:00'),t=new Date();let y=t.getFullYear()-d.getFullYear(),m=t.getMonth()-d.getMonth(),day=t.getDate()-d.getDate();if(day<0){m--;day+=new Date(t.getFullYear(),t.getMonth(),0).getDate()}if(m<0){y--;m+=12}return `${y} th ${m} bln`}
+function getGeneration(date){if(!date)return '';const y=new Date(date+'T00:00:00').getFullYear();const r=genRules.find(x=>y>=x.start&&y<=x.end);return r?.name||'Tidak terklasifikasi'}
+function normalize(s){return String(s??'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function mapHeader(row,aliases){for(const k of Object.keys(row)){const n=normalize(k);if(aliases.some(a=>n===normalize(a)||n.includes(normalize(a))))return row[k]}return ''}
+function parseList(s){return String(s||'').split(/[\n;]+/).map(x=>x.trim()).filter(Boolean)}
+function baseExpert(raw){const birth=toISODate(mapHeader(raw,['Tanggal Lahir','Tahun Lahir','TanggalLahir','Birth Date','BirthDate']));const join=toISODate(mapHeader(raw,['Tanggal Masuk Kerja','Tahun Masuk Kerja','Tahun Masuk','Join Date','JoinDate']));const issue=toISODate(mapHeader(raw,['Tanggal Penerbitan Sertifikasi','Tanggal Terbit Sertifikasi','Issue Date','Certification Issue Date']));const expiry=toISODate(mapHeader(raw,['Masa Berlaku Sertifikasi','Tanggal Masa Berlaku','Tanggal Expired Sertifikasi','Expiry Date','Certification Expiry']));const certName=String(mapHeader(raw,['Nama Sertifikasi','Sertifikasi Profesi','Certification','Certification Name'])).trim();const certOrg=String(mapHeader(raw,['Nama Lembaga','Lembaga Sertifikasi','Lembaga','Certification Organization'])).trim();const legacyYear=String(mapHeader(raw,['Tahun Sertifikasi','Tahun'])) .trim();const certifications=(certName||certOrg||issue||expiry||legacyYear)?[{name:certName,org:certOrg,issueDate:issue||((/^\d{4}$/.test(legacyYear))?`${legacyYear}-01-01`:''),expiry}]:[];return {id:uid(),name:String(mapHeader(raw,['Nama','Name'])).trim(),nrp:String(mapHeader(raw,['NRP','Employee ID','Nrp'])).trim(),phone:String(mapHeader(raw,['Handphone','HP','Mobile','No HP','Nomor HP'])).trim(),email:String(mapHeader(raw,['Email','E-mail'])).trim(),area:String(mapHeader(raw,['Area','Wilayah','Location'])).trim(),pillar:String(mapHeader(raw,['Pilar Expert','Pilar','Expert Pillar'])).trim(),birthDate:birth,joinDate:join,age:calcAge(birth),generation:getGeneration(birth),tenure:calcTenure(join),grade:String(mapHeader(raw,['Golongan','Grade'])).trim(),education:String(mapHeader(raw,['Pendidikan Terakhir','Pendidikan','Education'])).trim(),achievements:parseList(mapHeader(raw,['Prestasi','Achievement','Achievements'])),certifications,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}}
+function toISODate(v){if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:''}let s=String(v).trim();let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;m=s.match(/^(\d{4})[\/-](\d{1,2})(?:[\/-](\d{1,2}))?$/);if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${String(m[3]||'01').padStart(2,'0')}`;return ''}
+function hydrateReferences(){const p=[...document.querySelectorAll('select[name="pillar"]')];p.forEach(s=>{s.innerHTML='<option value="">Pilih</option>'+refs.pillars.map(x=>`<option>${x}</option>`).join('')});document.querySelectorAll('select[name="grade"]').forEach(s=>{s.innerHTML='<option value="">Pilih</option>'+refs.grades.map(x=>`<option>${x}</option>`).join('')});$('#fPilar').innerHTML='<option value="">Semua Pilar</option>'+refs.pillars.map(x=>`<option>${x}</option>`).join('');$('#fGrade').innerHTML='<option value="">Semua Golongan</option>'+refs.grades.map(x=>`<option>${x}</option>`).join('');$('#pillarRef').value=refs.pillars.join('\n');$('#gradeRef').value=refs.grades.join('\n');renderGenRules();updateStorageInfo()}
+function addGenRule(){if(!requireAdmin())return;genRules.push({name:'Generasi Baru',start:2013,end:2025});renderGenRules()}
+function removeGenRule(index){if(!requireAdmin())return;if(genRules.length<=1){alert('Minimal harus ada 1 rule generasi.');return}genRules.splice(index,1);renderGenRules()}
+function resetGenRules(){if(!requireAdmin())return;if(!confirm('Kembalikan Rule Generasi ke acuan yang ditetapkan?'))return;genRules=DEFAULT_GEN_RULES.map(x=>({...x}));localStorage.setItem(GEN,JSON.stringify(genRules));localStorage.setItem(GEN+'_version',GEN_RULE_VERSION);experts=experts.map(x=>({...x,generation:getGeneration(x.birthDate)}));save();hydrateReferences();renderAll();}
+function renderGenRules(){
+ $('#genRules').innerHTML=genRules.map((r,i)=>`<div class="gen-rule" style="display:grid;grid-template-columns:1.2fr .7fr .7fr auto;gap:8px;margin-bottom:8px;align-items:end">
+   <div><label>Nama Generasi</label><input class="gn" value="${escapeHtml(r.name)}"></div>
+   <div><label>Tahun Mulai</label><input class="gs" type="number" value="${r.start}" min="1800" max="2200"></div>
+   <div><label>Tahun Akhir</label><input class="ge" type="number" value="${r.end}" min="1800" max="2200"></div>
+   <button type="button" class="btn btn-danger" title="Hapus rule" onclick="removeGenRule(${i})">×</button>
+ </div>`).join('')
+}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function fmtDate(d){if(!d)return '-';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function updateCertCounter(){
+ const rows=[...document.querySelectorAll('#certInputs .cert-row')];
+ const counter=$('#certCounter');
+ if(counter)counter.textContent=`${rows.length} sertifikasi`;
+ rows.forEach((row,i)=>{const idx=row.querySelector('.cert-index');if(idx)idx.textContent=String(i+1).padStart(2,'0')});
+}
+function removeCertRow(btn){if(!requireAdmin())return;const row=btn.closest('.cert-row');if(row)row.remove();if(!document.querySelector('#certInputs .cert-row'))addCertRow();updateCertCounter()}
+function addCertRows(total=1){for(let i=0;i<total;i++)addCertRow();}
+function addCertRow(cert={}){if(!requireAdmin())return;
+ const host=$('#certInputs');
+ const legacyIssue=cert.issueDate || (cert.year ? `${cert.year}-01-01` : '');
+ const el=document.createElement('div');
+ el.className='cert-row';
+ el.innerHTML=`
+   <div class="cert-index">00</div>
+   <div class="cert-field"><label>Nama Sertifikasi</label><input class="c-name" placeholder="Contoh: Ahli K3 Umum" value="${escapeHtml(cert.name||'')}"></div>
+   <div class="cert-field"><label>Nama Lembaga</label><input class="c-org" placeholder="Contoh: BNSP / LSP" value="${escapeHtml(cert.org||'')}"></div>
+   <div class="cert-field"><label>Tanggal Penerbitan</label><input class="c-issue" type="date" value="${legacyIssue}"></div>
+   <div class="cert-field"><label>Masa Berlaku s/d</label><input class="c-exp" type="date" value="${escapeHtml(cert.expiry||'')}"></div>
+   <button type="button" class="btn btn-danger" title="Hapus sertifikasi" onclick="removeCertRow(this)">×</button>`;
+ host.appendChild(el);
+ updateCertCounter();
+}
+function collectCerts(){
+ return [...document.querySelectorAll('.cert-row')].map(r=>({
+   name:r.querySelector('.c-name').value.trim(),
+   org:r.querySelector('.c-org').value.trim(),
+   issueDate:r.querySelector('.c-issue').value,
+   expiry:r.querySelector('.c-exp').value
+ })).filter(x=>x.name||x.org||x.issueDate||x.expiry)
+}
+function resetForm(){editingId=null;$('#expertForm').reset();$('#certInputs').innerHTML='';addCertRow();updateCertCounter();populateExpertSelector('');$('#submitExpertBtn').textContent='Simpan Expert';$('#formModeBadge').textContent='MODE: EXPERT BARU';$('#formModeBadge').className='chip mode-new';updateSelectedExpertSummary(null)}
+function populateExpertSelector(selectedId=''){const el=$('#expertSelector');if(!el)return;const arr=[...experts].sort((a,b)=>(a.name||'').localeCompare(b.name||''));el.innerHTML='<option value="">+ Tambah Expert Baru</option>'+arr.map(x=>`<option value="${x.id}">${escapeHtml(x.name||'-')} • ${escapeHtml(x.nrp||'-')} • ${escapeHtml(x.pillar||'-')}</option>`).join('');el.value=selectedId||''}
+function selectExpertForUpdate(id){if(!requireAdmin())return;if(id){openExpert(id)}else{resetForm();switchTab('input')}}
+function updateSelectedExpertSummary(x){const box=$('#selectedExpertSummary');if(!box)return;if(!x){box.classList.add('hidden');box.innerHTML='';return}const initials=(x.name||'EX').split(' ').slice(0,2).map(v=>v[0]).join('').toUpperCase();box.classList.remove('hidden');box.innerHTML=`<div class="selected-profile-main"><div class="avatar">${escapeHtml(initials)}</div><div><div class="selected-value">${escapeHtml(x.name||'-')}</div><div class="selected-meta">${escapeHtml(x.nrp||'-')}</div></div></div><div><div class="selected-meta">Pilar</div><div class="selected-value">${escapeHtml(x.pillar||'-')}</div></div><div><div class="selected-meta">Area</div><div class="selected-value">${escapeHtml(x.area||'-')}</div></div><div><div class="selected-meta">Prestasi</div><div class="selected-value">${(x.achievements||[]).length}</div></div><div><div class="selected-meta">Sertifikasi</div><div class="selected-value">${(x.certifications||[]).length}</div></div>`}
+function openExpert(id=null){if(!requireAdmin())return;resetForm();editingId=id;populateExpertSelector(id||'');if(id){const x=experts.find(a=>a.id===id);if(!x)return;for(const [k,v] of Object.entries(x)){const el=document.querySelector(`[name="${k}"]`);if(el)el.value=Array.isArray(v)?v.join('\n'):v||''}$('#certInputs').innerHTML='';(x.certifications||[]).forEach(c=>addCertRow(c));if(!(x.certifications||[]).length)addCertRow();updateCertCounter();$('#submitExpertBtn').textContent='Update Expert';$('#formModeBadge').textContent='MODE: UPDATE EXPERT';$('#formModeBadge').className='chip mode-edit';updateSelectedExpertSummary(x)}else{$('#submitExpertBtn').textContent='Simpan Expert';$('#formModeBadge').textContent='MODE: EXPERT BARU';$('#formModeBadge').className='chip mode-new';updateSelectedExpertSummary(null)}switchTab('input');window.scrollTo({top:0,behavior:'smooth'})}
+$('#expertForm').addEventListener('submit',e=>{e.preventDefault();if(!requireAdmin())return;const fd=new FormData(e.target);const birth=fd.get('birthDate'),join=fd.get('joinDate'),nrp=String(fd.get('nrp')).trim();if(!nrp)return;const dup=experts.find(x=>x.nrp.toLowerCase()===nrp.toLowerCase()&&x.id!==editingId);if(dup){alert('NRP sudah terdaftar. Gunakan NRP yang unik.');return}const row={id:editingId||uid(),name:String(fd.get('name')).trim(),nrp,phone:String(fd.get('phone')).trim(),email:String(fd.get('email')).trim(),area:String(fd.get('area')).trim(),pillar:String(fd.get('pillar')).trim(),birthDate:birth,joinDate:join,age:calcAge(birth),generation:getGeneration(birth),tenure:calcTenure(join),grade:String(fd.get('grade')).trim(),education:String(fd.get('education')).trim(),achievements:parseList(fd.get('achievements')),certifications:collectCerts(),createdAt:editingId?(experts.find(x=>x.id===editingId)?.createdAt||new Date().toISOString()):new Date().toISOString(),updatedAt:new Date().toISOString()};if(editingId)experts=experts.map(x=>x.id===editingId?row:x);else experts.push(row);save();alert(editingId?'Expert berhasil diperbarui.':'Expert berhasil disimpan.');resetForm();switchTab('experts');renderAll()});
+function renderTable(){const q=($('#q')?.value||'').toLowerCase(),p=$('#fPilar')?.value||'',a=$('#fArea')?.value||'',g=$('#fGen')?.value||'',gr=$('#fGrade')?.value||'';const rows=experts.filter(x=>{const liveGeneration=getGeneration(x.birthDate)||x.generation||'';return [x.name,x.nrp,x.phone,x.email,x.area,x.pillar,x.grade,x.education,liveGeneration].join(' ').toLowerCase().includes(q)&&(!p||x.pillar===p)&&(!a||x.area===a)&&(!g||liveGeneration===g)&&(!gr||x.grade===gr)});const total=rows.length,pages=Math.max(1,Math.ceil(total/pageSize));currentPage=Math.min(currentPage,pages);const start=(currentPage-1)*pageSize;const shown=rows.slice(start,start+pageSize);if(!shown.length){$('#tableHost').innerHTML='<div class="empty"><strong>Belum ada data expert</strong>Import Excel atau tambahkan expert secara manual.</div>';$('#pagination').innerHTML='';return}let html='<div class="table-wrap"><table class="table"><thead><tr><th>Nama / NRP</th><th>Kontak</th><th>Area</th><th>Pilar</th><th>Usia / Generasi</th><th>Masa Kerja</th><th>Gol.</th><th>Pendidikan</th><th>Prestasi</th><th>Sertifikasi</th><th>Aksi</th></tr></thead><tbody>';shown.forEach(x=>{html+=`<tr><td><b>${escapeHtml(x.name)}</b><br><span class="muted">${escapeHtml(x.nrp)}</span></td><td>${escapeHtml(x.phone||'-')}<br>${escapeHtml(x.email||'-')}</td><td>${escapeHtml(x.area||'-')}</td><td><span class="chip">${escapeHtml(x.pillar||'-')}</span></td><td><b>${x.age??'-'} th</b><br><span class="chip">${escapeHtml(x.generation||'-')}</span></td><td>${escapeHtml(x.tenure)}</td><td><b>${escapeHtml(x.grade||'-')}</b></td><td>${escapeHtml(x.education||'-')}</td><td>${(x.achievements||[]).slice(0,3).map(z=>`<span class="chip orange">${escapeHtml(z)}</span>`).join(' ')||'-'}</td><td>${(x.certifications||[]).slice(0,2).map(c=>{const status=certStatus(c.expiry);return `<div><b>${escapeHtml(c.name)}</b><br><span class="chip ${status.cls}">${escapeHtml(c.org||'')}</span> ${c.expiry?fmtDate(c.expiry):'Tanpa expiry'}</div>`}).join('<hr style="border:0;border-top:1px solid #eee">')||'-'}</td><td><div class="table-action-stack">${isAdmin()?`<button class="btn btn-light btn-mini action-edit" onclick="openExpert('${x.id}')">✎ Update Data</button><button class="btn btn-danger btn-mini" onclick="deleteExpert('${x.id}')">Hapus</button>`:'<span class="chip">VIEW ONLY</span>'}</div></td></tr>`});html+='</tbody></table></div>';$('#tableHost').innerHTML=html;$('#pagination').innerHTML=Array.from({length:pages},(_,i)=>`<button class="page-btn ${i+1===currentPage?'active':''}" onclick="currentPage=${i+1};renderTable()">${i+1}</button>`).join('')}
+function deleteExpert(id){if(!requireAdmin())return;if(!confirm('Hapus data expert ini?'))return;experts=experts.filter(x=>x.id!==id);save();renderAll()}
+function resetFilters(){['q','fPilar','fArea','fGen','fGrade'].forEach(id=>{if($( '#'+id))$('#'+id).value=''});currentPage=1;renderTable()}
+function certStatus(exp){if(!exp)return {label:'Tidak ada expiry',cls:''};const d=new Date(exp+'T00:00:00'),t=new Date();const days=Math.ceil((d-t)/86400000);if(days<0)return {label:'Expired',cls:'red'};if(days<=90)return {label:'≤90 hari',cls:'orange'};return {label:'Aktif',cls:'green'}}
+function refreshDerivedData({persist=true}={}){const now=new Date().toISOString();const next=experts.map(x=>({...x,age:calcAge(x.birthDate),generation:getGeneration(x.birthDate),tenure:calcTenure(x.joinDate),updatedAt:x.updatedAt||now}));const changed=JSON.stringify(next)!==JSON.stringify(experts);experts=next;if(persist&&changed)save();}
+function dashboardData(){refreshDerivedData({persist:true});const rows=experts.map(x=>({name:x.name||'',nrp:x.nrp||'',pillar:(x.pillar||'').trim()||'Tidak terisi',area:(x.area||'').trim()||'Tidak terisi',grade:(x.grade||'').trim()||'Tidak terisi',generation:getGeneration(x.birthDate)||x.generation||'Tidak terklasifikasi',certs:Array.isArray(x.certifications)?x.certifications:[]}));return rows;}
+function aggregate(rows,key){const out={};rows.forEach(r=>{const v=String(r[key]||'').trim()||'Tidak terisi';out[v]=(out[v]||0)+1;});return out;}
+function updateExperienceChrome(){const total=experts.length;const quality=document.querySelectorAll('#qualityHost .insight').length;const navTotal=$('#navTotal');const navQuality=$('#navQuality');if(navTotal)navTotal.textContent=total;if(navQuality)navQuality.textContent=quality;const ds=$('#dashboardStatus');const dd=$('#dashboardDate');if(ds)ds.textContent=total?`${total} expert terkelola • data terintegrasi`:'Belum ada expert • siap diisi';if(dd)dd.textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});const dbs=$('#dashboardSource');if(dbs)dbs.textContent=`Sumber: Master Data Expert • ${total} record • diperbarui ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`;}
+function dashboard(){const rows=dashboardData();const total=rows.length;const gen=aggregate(rows,'generation'),pillar=aggregate(rows,'pillar'),grade=aggregate(rows,'grade'),area=aggregate(rows,'area');const certCount=rows.reduce((n,r)=>n+r.certs.length,0);const k=[['Total Expert',total,'record'],['Pilar Terisi',new Set(rows.map(r=>r.pillar).filter(v=>v!=='Tidak terisi')).size,'pilar'],['Area Tercover',new Set(rows.map(r=>r.area).filter(v=>v!=='Tidak terisi')).size,'area'],['Sertifikasi',certCount,'sertifikasi']];$('#kpis').innerHTML=k.map(x=>`<div class="kpi"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');drawChart('genChart','doughnut',gen,'Expert');drawChart('pillarChart','bar',pillar,'Expert');drawChart('gradeChart','bar',grade,'Expert');const areas=Object.entries(area).filter(([name])=>name!=='Tidak terisi').sort((a,b)=>b[1]-a[1]).slice(0,10);$('#areaList').innerHTML=areas.length?areas.map(([name,n])=>`<div style="margin-bottom:10px"><div class="inline" style="justify-content:space-between"><b>${escapeHtml(name)}</b><span>${n}</span></div><div class="progress"><span style="width:${Math.round(n/Math.max(...areas.map(a=>a[1]))*100)}%"></span></div></div>`).join(''):'<div class="empty">Belum ada data area.</div>';const alerts=[];rows.forEach(x=>x.certs.forEach(c=>{if(c.expiry){const t=certStatus(c.expiry);if(t.cls==='red'||t.cls==='orange')alerts.push({x,c,t})}}));$('#certAlerts').innerHTML=alerts.length?alerts.slice(0,10).map(o=>`<div class="insight" style="margin-bottom:8px"><b>${escapeHtml(o.x.name)}</b> • ${escapeHtml(o.c.name||'Sertifikasi')}<br><span class="chip ${o.t.cls}">${o.t.label}</span> ${fmtDate(o.c.expiry)}</div>`).join(''):'<div class="insight"><span class="status-dot dot-green"></span>Tidak ada sertifikasi yang akan/ sudah expired dalam alert sederhana.</div>';updateExperienceChrome();}
+function drawChart(id,type,obj,label){if(charts[id]){try{charts[id].destroy()}catch(e){}}const canvas=document.getElementById(id);if(!canvas)return;const labels=Object.keys(obj);const values=Object.values(obj);if(typeof Chart==='undefined'){const host=canvas.parentElement;host.innerHTML=`<div class="empty">Chart library belum tersedia. Data: ${escapeHtml(labels.map((k,i)=>`${k}: ${values[i]}`).join(' • ')||'Belum ada data')}</div>`;return}charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels:labels.length?labels:['Belum ada data'],datasets:[{label,data:labels.length?values:[0],borderWidth:1,borderRadius:type==='bar'?8:0}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:450},plugins:{legend:{display:type==='doughnut',position:'bottom'}},scales:type==='doughnut'?{}:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#e9eef5'}},x:{grid:{display:false}}}}})}
+function renderAll(){refreshDerivedData();hydrateAreaOptions();hydrateGenerationOptions();renderTable();runQuality();updateStorageInfo();populateExpertSelector(editingId||'');dashboard()}
+function hydrateAreaOptions(){const cur=$('#fArea')?.value||'';const areas=[...new Set(experts.map(x=>x.area).filter(Boolean))].sort();if($('#fArea'))$('#fArea').innerHTML='<option value="">Semua Area</option>'+areas.map(a=>`<option ${a===cur?'selected':''}>${escapeHtml(a)}</option>`).join('')}
+function hydrateGenerationOptions(){const el=$('#fGen');if(!el)return;const cur=el.value||'';const names=[...new Set(genRules.map(r=>r.name).filter(Boolean))];el.innerHTML='<option value="">Semua Generasi</option>'+names.map(g=>`<option value="${escapeHtml(g)}" ${g===cur?'selected':''}>${escapeHtml(g)}</option>`).join('')}
+function runQuality(){
+ const issues=[];
+ experts.forEach(x=>{
+  const miss=[];
+  if(!x.name)miss.push('nama'); if(!x.nrp)miss.push('NRP'); if(!x.area)miss.push('area'); if(!x.pillar)miss.push('pilar');
+  if(!x.birthDate)miss.push('tgl lahir'); if(!x.joinDate)miss.push('tgl masuk'); if(!x.grade)miss.push('golongan'); if(!x.email)miss.push('email');
+  if(miss.length)issues.push({x,miss});
+ });
+ const nrpMap={};
+ experts.forEach(x=>{if(x.nrp)(nrpMap[x.nrp]??=[]).push(x)});
+ const dups=Object.entries(nrpMap).filter(([k,v])=>v.length>1);
+ const completeness=experts.length?Math.round((experts.length*8-issues.reduce((n,o)=>n+o.miss.length,0))/(experts.length*8)*100):0;
+ const attention=issues.slice(0,15).map(o=>`<div class="insight" style="margin-bottom:7px"><b>${escapeHtml(o.x.name||'(tanpa nama)')}</b> — ${escapeHtml(o.miss.join(', '))}</div>`).join('') || '<div class="insight">Tidak ditemukan missing field inti.</div>';
+ $('#qualityHost').innerHTML=`
+  <div class="grid grid-3">
+   <div class="kpi"><small>Record</small><strong>${experts.length}</strong><span>master data</span></div>
+   <div class="kpi"><small>Incomplete</small><strong>${issues.length}</strong><span>butuh dilengkapi</span></div>
+   <div class="kpi"><small>Duplicate NRP</small><strong>${dups.length}</strong><span>key conflict</span></div>
+  </div>
+  <div style="height:16px"></div>
+  <div class="grid grid-2">
+   <div><h3>Kelengkapan</h3><div class="insight">Skor sederhana berdasarkan 8 field inti (nama, NRP, area, pilar, lahir, masuk, golongan, email).</div><div style="margin-top:12px"><b>${completeness}%</b> estimasi kelengkapan inti</div></div>
+   <div><h3>Data yang Perlu Perhatian</h3>${attention}</div>
+  </div>`;
+}
+function updateStorageInfo(){$('#storageInfo').textContent=`${experts.length} expert tersimpan di browser ini menggunakan localStorage. Data tidak otomatis masuk ke sistem pusat dan tidak sinkron antar perangkat.`}
+function exportExcel(){if(!requireAdmin())return;const rows=experts.map(x=>({Nama:x.name,NRP:x.nrp,Handphone:x.phone,Email:x.email,Area:x.area,'Pilar Expert':x.pillar,'Tanggal Lahir':x.birthDate,'Usia':calcAge(x.birthDate),Generasi:getGeneration(x.birthDate),'Tanggal Masuk Kerja':x.joinDate,'Masa Kerja':calcTenure(x.joinDate),Golongan:x.grade,'Pendidikan Terakhir':x.education,Prestasi:(x.achievements||[]).join('; '),'Jumlah Sertifikasi':(x.certifications||[]).length,'Nama Sertifikasi':(x.certifications||[]).map(c=>c.name||'').join('; '),'Lembaga Sertifikasi':(x.certifications||[]).map(c=>c.org||'').join('; '),'Tanggal Penerbitan Sertifikasi':(x.certifications||[]).map(c=>c.issueDate||'').join('; '),'Masa Berlaku Sertifikasi':(x.certifications||[]).map(c=>c.expiry||'').join('; ')}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Expert');XLSX.writeFile(wb,'UT_Expert_Master_Data.xlsx')}
+function styleWorksheet(ws, widths){
+ const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:A1');
+ if(widths) ws['!cols'] = widths.map(w => ({wch:w}));
+ ws['!autofilter'] = {ref: XLSX.utils.encode_range(range)};
+ ws['!freeze'] = {xSplit:0,ySplit:1};
+}
+function exportReportExcel(){if(!requireAdmin())return;
+ if(!window.XLSX){alert('Library Excel belum tersedia. Pastikan koneksi internet aktif lalu coba lagi.');return}
+ refreshDerivedData();
+ const reportAt = new Date();
+ const wb = XLSX.utils.book_new();
+ const total = experts.length;
+ const pillars = aggregate(experts,'pillar');
+ const grades = aggregate(experts,'grade');
+ const areas = aggregate(experts,'area');
+ const generations = aggregate(experts.map(x=>({...x,generation:getGeneration(x.birthDate)})),'generation');
+ const totalCert = experts.reduce((n,x)=>n+(x.certifications||[]).length,0);
+ const totalAwards = experts.reduce((n,x)=>n+(x.achievements||[]).length,0);
+
+ // Ringkasan
+ const summary = [
+  ['EXPERT MANAGEMENT REPORT','PT United Tractors Tbk'],
+  ['Tanggal Laporan', reportAt.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})],
+  ['Waktu Generate', reportAt.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})],
+  [],
+  ['INDIKATOR UTAMA','NILAI'],
+  ['Total Expert', total],
+  ['Pilar Terisi', Object.keys(pillars).filter(Boolean).length],
+  ['Area Tercover', Object.keys(areas).filter(Boolean).length],
+  ['Total Sertifikasi', totalCert],
+  ['Total Prestasi', totalAwards],
+  [],
+  ['GENERASI','JUMLAH'],
+  ...Object.entries(generations).map(([k,v])=>[k,v]),
+  [],
+  ['PILAR EXPERT','JUMLAH'],
+  ...Object.entries(pillars).map(([k,v])=>[k,v]),
+  [],
+  ['GOLONGAN','JUMLAH'],
+  ...Object.entries(grades).map(([k,v])=>[k,v]),
+  [],
+  ['AREA','JUMLAH'],
+  ...Object.entries(areas).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v]),
+ ];
+ const wsSummary = XLSX.utils.aoa_to_sheet(summary);
+ styleWorksheet(wsSummary,[30,26]);
+ XLSX.utils.book_append_sheet(wb,wsSummary,'Ringkasan');
+
+ // Data Expert
+ const expertRows = experts.map(x=>({
+  Nama:x.name||'',NRP:x.nrp||'',Handphone:x.phone||'',Email:x.email||'',Area:x.area||'',Pilar:x.pillar||'',
+  'Tanggal Lahir':x.birthDate||'',Usia:calcAge(x.birthDate)||'',Generasi:getGeneration(x.birthDate)||'',
+  'Tanggal Masuk Kerja':x.joinDate||'', 'Masa Kerja':calcTenure(x.joinDate),Golongan:x.grade||'',Pendidikan:x.education||'',
+  'Jumlah Prestasi':(x.achievements||[]).length,'Jumlah Sertifikasi':(x.certifications||[]).length,
+  'Prestasi Ringkas':(x.achievements||[]).join('; ')
+ }));
+ const wsExpert = XLSX.utils.json_to_sheet(expertRows);
+ styleWorksheet(wsExpert,[26,14,18,30,18,14,16,8,16,20,14,12,18,18,18,42]);
+ XLSX.utils.book_append_sheet(wb,wsExpert,'Data Expert');
+
+ // Sertifikasi detail
+ const certRows=[];
+ experts.forEach(x=>(x.certifications||[]).forEach((c,i)=>certRows.push({
+  Nama:x.name||'',NRP:x.nrp||'',Area:x.area||'',Pilar:x.pillar||'',
+  'No Sertifikasi':i+1,'Nama Sertifikasi':c.name||'','Nama Lembaga':c.org||'',
+  'Tanggal Penerbitan':c.issueDate||'','Masa Berlaku s/d':c.expiry||'',
+  Status: !c.expiry ? 'Tanpa tanggal berlaku' : (new Date(c.expiry+'T23:59:59')<new Date() ? 'Expired' : ((new Date(c.expiry+'T23:59:59')-Date.now())<=90*86400000 ? 'Segera Expired' : 'Aktif'))
+ })));
+ const wsCert = XLSX.utils.json_to_sheet(certRows.length?certRows:[{Keterangan:'Belum ada data sertifikasi'}]);
+ styleWorksheet(wsCert,[26,14,18,14,14,34,28,20,20,18]);
+ XLSX.utils.book_append_sheet(wb,wsCert,'Sertifikasi');
+
+ // Prestasi detail
+ const achievementRows=[];
+ experts.forEach(x=>(x.achievements||[]).forEach((a,i)=>achievementRows.push({Nama:x.name||'',NRP:x.nrp||'',Area:x.area||'',Pilar:x.pillar||'',No:i+1,Prestasi:a})));
+ const wsAch = XLSX.utils.json_to_sheet(achievementRows.length?achievementRows:[{Keterangan:'Belum ada data prestasi'}]);
+ styleWorksheet(wsAch,[26,14,18,14,10,48]);
+ XLSX.utils.book_append_sheet(wb,wsAch,'Prestasi');
+
+ // Data Quality
+ const qualityRows=[];
+ experts.forEach(x=>{
+  const missing=[];
+  if(!x.name)missing.push('Nama');if(!x.nrp)missing.push('NRP');if(!x.area)missing.push('Area');if(!x.pillar)missing.push('Pilar');
+  if(!x.birthDate)missing.push('Tanggal Lahir');if(!x.joinDate)missing.push('Tanggal Masuk');if(!x.grade)missing.push('Golongan');if(!x.email)missing.push('Email');
+  qualityRows.push({Nama:x.name||'',NRP:x.nrp||'',Kelengkapan:missing.length?'Perlu dilengkapi':'Lengkap','Field Belum Terisi':missing.join(', ')});
+ });
+ const wsQuality = XLSX.utils.json_to_sheet(qualityRows.length?qualityRows:[{Keterangan:'Belum ada data expert'}]);
+ styleWorksheet(wsQuality,[26,14,20,48]);
+ XLSX.utils.book_append_sheet(wb,wsQuality,'Data Quality');
+
+ // Rule Generasi
+ const wsGen = XLSX.utils.json_to_sheet(genRules.map((r,i)=>({No:i+1,'Nama Generasi':r.name,'Tahun Mulai':r.start,'Tahun Akhir':r.end})));
+ styleWorksheet(wsGen,[8,24,16,16]);
+ XLSX.utils.book_append_sheet(wb,wsGen,'Rule Generasi');
+
+ // Metadata
+ const wsMeta = XLSX.utils.aoa_to_sheet([
+  ['METADATA LAPORAN','NILAI'],
+  ['Sumber Data','Master Data Expert pada aplikasi'],
+  ['Tanggal Generate',reportAt.toISOString()],
+  ['Jumlah Record Expert',total],
+  ['Rule Generasi Aktif',genRules.map(r=>`${r.name}: ${r.start}-${r.end}`).join(' | ')],
+  ['Catatan','Laporan digenerate langsung dari data yang tersimpan pada aplikasi.']
+ ]);
+ styleWorksheet(wsMeta,[30,90]);
+ XLSX.utils.book_append_sheet(wb,wsMeta,'Metadata');
+
+ // Sheet summary styling helpers are intentionally simple for broad Excel compatibility.
+ const filename = `UT_Expert_Management_Report_${reportAt.toISOString().slice(0,10)}.xlsx`;
+ XLSX.writeFile(wb,filename);
+ alert(`Laporan Excel berhasil dibuat dengan ${wb.SheetNames.length} sheet.`);
+}
+function exportJSON(){if(!requireAdmin())return;const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),experts},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='UT_Expert_Backup.json';a.click()}
+function downloadTemplate(){if(!requireAdmin())return;const rows=[{Nama:'Budi Santoso',NRP:'123456',Handphone:'0812xxxx',Email:'budi@company.com',Area:'HO','Pilar Expert':'AE','Tanggal Lahir':'15/08/1985','Tanggal Masuk Kerja':'01/03/2010',Golongan:'IVa','Pendidikan Terakhir':'D4/S1',Prestasi:'Best Expert; Innovation Award','Nama Sertifikasi':'Ahli K3 Umum','Lembaga Sertifikasi':'BNSP','Tanggal Penerbitan Sertifikasi':'15/01/2025','Masa Berlaku Sertifikasi':'15/01/2028'}];const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Template');XLSX.writeFile(wb,'Template_Import_UT_Expert.xlsx')}
+function openImport(){if(!requireAdmin())return;$('#importPreview').innerHTML='';$('#excelFile').value='';$('#importModal').style.display='flex'}
+function closeModal(id){$('#'+id).style.display='none'}
+function previewImport(ev){if(!requireAdmin())return;const f=ev.target.files?.[0];if(!f)return;const r=new FileReader();r.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array',cellDates:true});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{defval:''});importRows=rows.map(baseExpert);const dupInFile={};importRows.forEach(x=>dupInFile[x.nrp]=(dupInFile[x.nrp]||0)+1);const dup=[...new Set(importRows.filter(x=>x.nrp&&dupInFile[x.nrp]>1).map(x=>x.nrp))];$('#importPreview').innerHTML=`<div class="insight"><b>${importRows.length}</b> baris terbaca. ${dup.length?`<span class="chip red">${dup.length} NRP duplicate dalam file</span>`:'<span class="chip green">Tidak ada duplicate NRP dalam file</span>'}</div><div class="table-wrap" style="margin-top:10px;max-height:260px"><table class="table"><thead><tr><th>Nama</th><th>NRP</th><th>Area</th><th>Pilar</th><th>Lahir</th><th>Masuk</th><th>Gol.</th></tr></thead><tbody>${importRows.slice(0,20).map(x=>`<tr><td>${escapeHtml(x.name)}</td><td>${escapeHtml(x.nrp)}</td><td>${escapeHtml(x.area)}</td><td>${escapeHtml(x.pillar)}</td><td>${fmtDate(x.birthDate)}</td><td>${fmtDate(x.joinDate)}</td><td>${escapeHtml(x.grade)}</td></tr>`).join('')}</tbody></table></div>`};r.readAsArrayBuffer(f)}
+function commitImport(){if(!requireAdmin())return;if(!importRows.length){alert('Pilih file Excel terlebih dahulu.');return}let added=0,updated=0,skipped=0;importRows.forEach(row=>{if(!row.nrp){skipped++;return}const idx=experts.findIndex(x=>x.nrp.toLowerCase()===row.nrp.toLowerCase());if(idx>=0){row.id=experts[idx].id;row.createdAt=experts[idx].createdAt;experts[idx]={...experts[idx],...row,updatedAt:new Date().toISOString()};updated++}else{experts.push(row);added++}});save();closeModal('importModal');alert(`Import selesai. Tambah: ${added}, update: ${updated}, dilewati: ${skipped}.`);renderAll()}
+function loadDemo(){if(!requireAdmin())return;if(experts.length&& !confirm('Data saat ini akan ditambah dengan data demo. Lanjut?'))return;const demos=[['Andi Pratama','100001','HO','AE','1980-06-12','2010-02-01','IVa'],['Sari Wulandari','100002','Site A','PRE','1988-11-20','2014-05-12','IVb'],['Dimas Kurnia','100003','Branch B','TPSE','1997-04-05','2020-07-01','III'],['Rina Maharani','100004','HO','TCDE','1975-09-17','2002-01-10','IVc'],['Agus Hidayat','100005','Site C','PSC','1992-02-14','2018-11-23','IVa'],['Tono Wijaya','100006','Site A','AE','1984-03-30','2009-08-16','IVb']];demos.forEach(d=>{if(!experts.some(x=>x.nrp===d[1]))experts.push({id:uid(),name:d[0],nrp:d[1],phone:'0812-0000-0000',email:d[0].toLowerCase().replace(/ /g,'.')+'@company.com',area:d[2],pillar:d[3],birthDate:d[4],joinDate:d[5],age:calcAge(d[4]),generation:getGeneration(d[4]),tenure:calcTenure(d[5]),grade:d[6],education:'D4/S1',achievements:['Innovation Award'],certifications:[{name:'K3 Umum',org:'LSP',issueDate:'2024-05-31',expiry:'2027-05-31'}],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()})});save();renderAll();switchTab('dashboard')}
+function clearAll(){if(!requireAdmin())return;if(!confirm('Hapus SELURUH data expert dari browser ini?'))return;experts=[];save();renderAll()}
+function switchTab(tab){if(!isAdmin()&&(tab==='input'||tab==='settings')){alert('Akun Member hanya dapat melihat data.');tab='dashboard'}document.querySelectorAll('.tab-page').forEach(x=>x.classList.add('hidden'));$('#'+tab).classList.remove('hidden');document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));if(tab==='dashboard'){dashboard();}if(tab==='experts')renderTable();if(tab==='quality')runQuality()}
+function toggleSidebar(){document.getElementById('sidebar')?.classList.toggle('open')}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+if(localStorage.getItem(GEN+'_version')!==GEN_RULE_VERSION){localStorage.setItem(GEN,JSON.stringify(genRules));localStorage.setItem(GEN+'_version',GEN_RULE_VERSION);}
+function init(){hydrateReferences();$('#certInputs').innerHTML='';addCertRow();updateCertCounter();populateExpertSelector('');renderAll();setTimeout(()=>loadCloudData(true),120)}
+bootstrapAuth();
+</script>
+</body>
+</html>
