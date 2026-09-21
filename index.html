@@ -143,6 +143,26 @@ input:focus,select:focus,textarea:focus{border-color:#f9c400;box-shadow:0 0 0 3p
 .pillar-grade-value.has-data{background:#fff1b8;color:#111}
 .pillar-grade-total{font-weight:900;color:#111}
 .pillar-grade-total-row td{background:#f8f9fa!important;font-weight:900;border-top:2px solid #f9c400}
+
+.certification-dashboard-card .dashboard-cert-detail-btn{background:#111;color:#fff;border-color:#111}
+.certification-dashboard-card .dashboard-cert-detail-btn:hover{background:#f9c400;color:#111;border-color:#f9c400}
+.dashboard-cert-wrap{overflow:auto;border:1px solid #e1e7ee;border-radius:12px}
+.dashboard-cert-table{width:100%;border-collapse:collapse;min-width:760px}
+.dashboard-cert-table th,.dashboard-cert-table td{padding:10px 12px;border-bottom:1px solid #edf1f5;text-align:left;font-size:12px;vertical-align:top}
+.dashboard-cert-table th{background:#111;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+.dashboard-cert-table tbody tr:hover td{background:#fffaf0}
+.dashboard-cert-table td:first-child{font-weight:900;color:#111}
+.dashboard-cert-year{font-weight:900;color:#111}
+.kpi-clickable{cursor:pointer;transition:.18s ease}
+.kpi-clickable:hover{transform:translateY(-2px);border-color:#f9c400;box-shadow:0 12px 28px rgba(249,196,0,.16)}
+.cert-modal-list{display:grid;gap:9px}
+.cert-modal-item{padding:12px 14px;border:1px solid #e1e7ee;border-radius:12px;background:#f8fafc}
+.cert-modal-item:hover{background:#fffaf0;border-color:#e5cc58}
+.cert-modal-main{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.cert-modal-name{font-weight:900;color:#111}
+.cert-modal-expert{font-weight:800;color:#0b2e59;margin-top:3px}
+.cert-modal-meta{font-size:11px;color:#6b778c;margin-top:5px}
+
 </style>
 </head>
 <body>
@@ -217,6 +237,14 @@ input:focus,select:focus,textarea:focus{border-color:#f9c400;box-shadow:0 0 0 3p
 <div style="height:16px"></div>
 <div class="chart-grid"><div class="card chart-card"><div class="section-title"><h3>Generasi</h3><span class="muted">Birth cohort</span></div><div class="chart-wrap"><canvas id="genChart"></canvas></div></div><div class="card chart-card"><div class="section-title"><h3>Expert per Pilar</h3><span class="muted">Headcount</span></div><div class="chart-wrap"><canvas id="pillarChart"></canvas></div></div><div class="card chart-card"><div class="section-title"><div><h3>Golongan per Pilar</h3><span class="muted">Distribusi expert berdasarkan pilar dan kelompok golongan</span></div><span class="chip orange">Live</span></div><div id="pillarGradeMatrix" class="pillar-grade-wrap"></div></div></div>
 <div style="height:16px"></div><div class="grid grid-2"><div class="card"><div class="section-title"><h3>Komposisi Area</h3><span class="muted">Top 10</span></div><div id="areaList"></div></div><div class="card"><div class="section-title"><h3>Alert Sertifikasi</h3><span class="muted">berdasarkan tanggal berlaku</span></div><div id="certAlerts"></div></div></div>
+<div style="height:16px"></div>
+<div class="card certification-dashboard-card">
+  <div class="section-title">
+    <div><h3>Peserta yang Pernah Mengikuti Sertifikasi</h3><span class="muted">Urutan: nama sertifikasi → tahun penerbitan → nama expert</span></div>
+    <button type="button" class="btn btn-light dashboard-cert-detail-btn" onclick="openCertificationDashboardModal()">Lihat Detail</button>
+  </div>
+  <div id="dashboardCertTable"></div>
+</div>
 </section>
 
 <section id="experts" class="tab-page hidden"><div class="card"><div class="section-title"><div><h2>Master Data Expert</h2><div class="muted">Satu sumber data untuk profil, pengalaman, prestasi, pendidikan, dan sertifikasi. Pilih <b>Update Data</b> pada expert untuk melanjutkan perubahan.</div></div><div class="toolbar"><button class="btn btn-light admin-only" onclick="exportExcel()">Export Excel</button><button class="btn btn-orange admin-only" onclick="exportReportExcel()">Laporan Excel</button><button class="btn btn-light admin-only" onclick="exportPDF()">Export PDF</button><button class="btn btn-light admin-only" onclick="exportJSON()">Backup JSON</button></div></div><div class="filter-row table-top"><input id="q" placeholder="Cari nama, NRP, email, area..." oninput="renderTable()"><select id="fPilar" onchange="renderTable()"><option value="">Semua Pilar</option></select><select id="fArea" onchange="renderTable()"><option value="">Semua Area</option></select><select id="fGen" onchange="renderTable()"><option value="">Semua Generasi</option><option>Gen X</option><option>Gen Y</option><option>Gen Z</option><option>Gen Alpha</option></select><select id="fGrade" onchange="renderTable()"><option value="">Semua Golongan</option></select><select id="fGradeGroup" class="grade-group-filter" onchange="renderTable()"><option value="">Semua Kelompok Golongan</option><option value="3">Golongan 3</option><option value="4ad">Golongan 4AD</option><option value="4ef">Golongan 4EF</option><option value="5ad">Golongan 5AD</option></select><button class="btn btn-light" onclick="resetFilters()">Reset</button></div><div id="gradeGroupBar" class="grade-group-bar"></div><div id="tableHost"></div><div id="pagination" class="pagination"></div></div></section>
@@ -248,6 +276,13 @@ input:focus,select:focus,textarea:focus{border-color:#f9c400;box-shadow:0 0 0 3p
 
 <div class="modal-backdrop" id="expertModal"><div class="modal"><div class="modal-head"><h3 id="modalTitle">Tambah Expert</h3><button class="close" onclick="closeModal('expertModal')">×</button></div><div class="modal-body"><div id="modalFormHost"></div></div></div></div>
 <div class="modal-backdrop" id="importModal"><div class="modal"><div class="modal-head"><h3>Import Data Excel</h3><button class="close" onclick="closeModal('importModal')">×</button></div><div class="modal-body"><div class="notice">Header yang dikenali secara otomatis antara lain: Nama, NRP, Handphone/HP, Email, Area, Pilar Expert, Tanggal Lahir, Tahun Lahir, Tahun Masuk, Tanggal Masuk Kerja, Golongan, Pendidikan, Prestasi, Nama Sertifikasi, Lembaga Sertifikasi, Tanggal Penerbitan Sertifikasi, Masa Berlaku Sertifikasi. Bila satu baris berisi lebih dari satu sertifikasi, sertifikasi dapat dirapikan kembali melalui menu Input Expert.</div><div style="margin-top:14px"><label>Pilih file .xlsx / .xls / .csv</label><input id="excelFile" type="file" accept=".xlsx,.xls,.csv" onchange="previewImport(event)"></div><div id="importPreview" style="margin-top:14px"></div></div><div class="modal-foot"><button class="btn btn-light" onclick="closeModal('importModal')">Batal</button><button class="btn btn-orange" onclick="commitImport()">Import</button></div></div></div>
+</div>
+<div class="modal-backdrop" id="certificationDashboardModal">
+  <div class="modal" style="width:min(1100px,100%)">
+    <div class="modal-head"><div><h3 style="margin:0">Detail Sertifikasi Expert</h3><div class="muted" style="font-size:11px;margin-top:4px">Urutan: nama sertifikasi → tahun penerbitan → nama expert</div></div><button class="close" onclick="closeModal('certificationDashboardModal')">×</button></div>
+    <div class="modal-body"><div id="certificationDashboardModalBody"></div></div>
+    <div class="modal-foot"><button class="btn btn-light" onclick="closeModal('certificationDashboardModal')">Tutup</button></div>
+  </div>
 </div>
 
 <script>
@@ -441,7 +476,7 @@ async function loadCloudData(silent=false){
  cloudHydrating=true;updateCloudBadge('loading');
  try{
   const data=await jsonpCloudGet();
-  if(Array.isArray(data.experts))experts=data.experts.map(x=>({...x,certifications:Array.isArray(x.certifications)?x.certifications:[],achievements:Array.isArray(x.achievements)?x.achievements:[]}));
+  if(Array.isArray(data.experts))experts=data.experts.map(x=>({...x,birthDate:toISODate(x.birthDate),joinDate:toISODate(x.joinDate),age:calcAge(toISODate(x.birthDate)),generation:getGeneration(toISODate(x.birthDate)),tenure:calcTenure(toISODate(x.joinDate)),certifications:Array.isArray(x.certifications)?x.certifications.map(c=>({...c,issueDate:toISODate(c.issueDate),expiry:toISODate(c.expiry)})):[],achievements:Array.isArray(x.achievements)?x.achievements:[]}));
   if(data.refs?.pillars?.length||data.refs?.grades?.length)refs={pillars:data.refs.pillars||refs.pillars,grades:data.refs.grades||refs.grades};
   if(Array.isArray(data.genRules)&&data.genRules.length)genRules=data.genRules;
   persistLocal();cloudLoaded=true;cloudLastSync=new Date();updateCloudBadge('success');renderAll();
@@ -520,7 +555,44 @@ function normalize(s){return String(s??'').toLowerCase().replace(/[^a-z0-9]/g,''
 function mapHeader(row,aliases){for(const k of Object.keys(row)){const n=normalize(k);if(aliases.some(a=>n===normalize(a)||n.includes(normalize(a))))return row[k]}return ''}
 function parseList(s){return String(s||'').split(/[\n;]+/).map(x=>x.trim()).filter(Boolean)}
 function baseExpert(raw){const birth=toISODate(mapHeader(raw,['Tanggal Lahir','Tahun Lahir','TanggalLahir','Birth Date','BirthDate']));const join=toISODate(mapHeader(raw,['Tanggal Masuk Kerja','Tahun Masuk Kerja','Tahun Masuk','Join Date','JoinDate']));const issue=toISODate(mapHeader(raw,['Tanggal Penerbitan Sertifikasi','Tanggal Terbit Sertifikasi','Issue Date','Certification Issue Date']));const expiry=toISODate(mapHeader(raw,['Masa Berlaku Sertifikasi','Tanggal Masa Berlaku','Tanggal Expired Sertifikasi','Expiry Date','Certification Expiry']));const certName=String(mapHeader(raw,['Nama Sertifikasi','Sertifikasi Profesi','Certification','Certification Name'])).trim();const certOrg=String(mapHeader(raw,['Nama Lembaga','Lembaga Sertifikasi','Lembaga','Certification Organization'])).trim();const legacyYear=String(mapHeader(raw,['Tahun Sertifikasi','Tahun'])) .trim();const certifications=(certName||certOrg||issue||expiry||legacyYear)?[{name:certName,org:certOrg,issueDate:issue||((/^\d{4}$/.test(legacyYear))?`${legacyYear}-01-01`:''),expiry}]:[];return {id:uid(),name:String(mapHeader(raw,['Nama','Name'])).trim(),nrp:String(mapHeader(raw,['NRP','Employee ID','Nrp'])).trim(),phone:String(mapHeader(raw,['Handphone','HP','Mobile','No HP','Nomor HP'])).trim(),email:String(mapHeader(raw,['Email','E-mail'])).trim(),area:String(mapHeader(raw,['Area','Wilayah','Location'])).trim(),pillar:String(mapHeader(raw,['Pilar Expert','Pilar','Expert Pillar'])).trim(),birthDate:birth,joinDate:join,age:calcAge(birth),generation:getGeneration(birth),tenure:calcTenure(join),grade:String(mapHeader(raw,['Golongan','Grade'])).trim(),education:String(mapHeader(raw,['Pendidikan Terakhir','Pendidikan','Education'])).trim(),achievements:parseList(mapHeader(raw,['Prestasi','Achievement','Achievements'])),certifications,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}}
-function toISODate(v){if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==='number'&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:''}let s=String(v).trim();let m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;m=s.match(/^(\d{4})[\/-](\d{1,2})(?:[\/-](\d{1,2}))?$/);if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${String(m[3]||'01').padStart(2,'0')}`;return ''}
+function isValidISODate(y,m,d){
+  const yy=Number(y),mm=Number(m),dd=Number(d);
+  if(!Number.isInteger(yy)||!Number.isInteger(mm)||!Number.isInteger(dd)||yy<1900||yy>2200||mm<1||mm>12||dd<1||dd>31)return false;
+  const dt=new Date(Date.UTC(yy,mm-1,dd));
+  return dt.getUTCFullYear()===yy&&dt.getUTCMonth()===mm-1&&dt.getUTCDate()===dd;
+}
+function toISODate(v){
+  if(v===undefined||v===null||v==='')return '';
+  if(v instanceof Date){
+    if(isNaN(v.getTime()))return '';
+    const y=v.getFullYear(),m=v.getMonth()+1,d=v.getDate();
+    return isValidISODate(y,m,d)?`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  }
+  if(typeof v==='number' && isFinite(v) && window.XLSX){
+    const d=XLSX.SSF.parse_date_code(v);
+    if(d && isValidISODate(d.y,d.m,d.d))return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+  }
+  let s=String(v).trim();
+  if(!s)return '';
+  // Excel/CSV sometimes supplies a numeric serial as text.
+  if(/^\d+(\.\d+)?$/.test(s) && Number(s)>20000 && Number(s)<100000 && window.XLSX){
+    const d=XLSX.SSF.parse_date_code(Number(s));
+    if(d && isValidISODate(d.y,d.m,d.d))return `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
+  }
+  // Remove time portion from common date-time strings.
+  s=s.replace(/[T ]\d{1,2}:\d{2}(?::\d{2}(?:\.\d+)?)?.*$/,'').trim();
+  let m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if(m){
+    const d=Number(m[1]),mo=Number(m[2]),y=Number(m[3]);
+    return isValidISODate(y,mo,d)?`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  }
+  m=s.match(/^(\d{4})[\/\-.](\d{1,2})(?:[\/\-.](\d{1,2}))?$/);
+  if(m){
+    const y=Number(m[1]),mo=Number(m[2]),d=Number(m[3]||1);
+    return isValidISODate(y,mo,d)?`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';
+  }
+  return '';
+}
 function hydrateReferences(){const p=[...document.querySelectorAll('select[name="pillar"]')];p.forEach(s=>{s.innerHTML='<option value="">Pilih</option>'+refs.pillars.map(x=>`<option>${x}</option>`).join('')});document.querySelectorAll('select[name="grade"]').forEach(s=>{s.innerHTML='<option value="">Pilih</option>'+refs.grades.map(x=>`<option>${x}</option>`).join('')});$('#fPilar').innerHTML='<option value="">Semua Pilar</option>'+refs.pillars.map(x=>`<option>${x}</option>`).join('');$('#fGrade').innerHTML='<option value="">Semua Golongan</option>'+refs.grades.map(x=>`<option>${x}</option>`).join('');$('#pillarRef').value=refs.pillars.join('\n');$('#gradeRef').value=refs.grades.join('\n');renderGenRules();updateStorageInfo()}
 function addGenRule(){if(!requireAdmin())return;genRules.push({name:'Generasi Baru',start:2013,end:2025});renderGenRules()}
 function removeGenRule(index){if(!requireAdmin())return;if(genRules.length<=1){alert('Minimal harus ada 1 rule generasi.');return}genRules.splice(index,1);renderGenRules()}
@@ -608,7 +680,41 @@ function renderPillarGradeMatrix(rows){
  html+=`<tr class="pillar-grade-total-row"><td>TOTAL</td>`+groups.map(g=>`<td>${totals[g]}</td>`).join('')+`<td>${grand}</td></tr></tbody></table>`;
  host.innerHTML=html;
 }
-function dashboard(){const rows=dashboardData();const total=rows.length;const gen=aggregate(rows,'generation'),pillar=aggregate(rows,'pillar'),grade=aggregate(rows,'grade'),area=aggregate(rows,'area');const certCount=rows.reduce((n,r)=>n+r.certs.length,0);const k=[['Total Expert',total,'record'],['Pilar Terisi',new Set(rows.map(r=>r.pillar).filter(v=>v!=='Tidak terisi')).size,'pilar'],['Area Tercover',new Set(rows.map(r=>r.area).filter(v=>v!=='Tidak terisi')).size,'area'],['Sertifikasi',certCount,'sertifikasi']];$('#kpis').innerHTML=k.map(x=>`<div class="kpi"><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');drawChart('genChart','doughnut',gen,'Expert');drawChart('pillarChart','bar',pillar,'Expert');renderPillarGradeMatrix(rows);const areas=Object.entries(area).filter(([name])=>name!=='Tidak terisi').sort((a,b)=>b[1]-a[1]).slice(0,10);$('#areaList').innerHTML=areas.length?areas.map(([name,n])=>`<div style="margin-bottom:10px"><div class="inline" style="justify-content:space-between"><b>${escapeHtml(name)}</b><span>${n}</span></div><div class="progress"><span style="width:${Math.round(n/Math.max(...areas.map(a=>a[1]))*100)}%"></span></div></div>`).join(''):'<div class="empty">Belum ada data area.</div>';const alerts=[];rows.forEach(x=>x.certs.forEach(c=>{if(c.expiry){const t=certStatus(c.expiry);if(t.cls==='red'||t.cls==='orange')alerts.push({x,c,t})}}));$('#certAlerts').innerHTML=alerts.length?alerts.slice(0,10).map(o=>`<div class="insight" style="margin-bottom:8px"><b>${escapeHtml(o.x.name)}</b> • ${escapeHtml(o.c.name||'Sertifikasi')}<br><span class="chip ${o.t.cls}">${o.t.label}</span> ${fmtDate(o.c.expiry)}</div>`).join(''):'<div class="insight"><span class="status-dot dot-green"></span>Tidak ada sertifikasi yang akan/ sudah expired dalam alert sederhana.</div>';updateExperienceChrome();}
+function certificationRecords(){
+  const out=[];
+  experts.forEach(x=>(Array.isArray(x.certifications)?x.certifications:[]).forEach(c=>{
+    const issueDate=toISODate(c.issueDate);
+    const year=issueDate?Number(issueDate.slice(0,4)):(/^\d{4}$/.test(String(c.year||'').trim())?Number(c.year):0);
+    const name=String(c.name||'').trim();
+    if(!name)return;
+    out.push({name,year,issueDate,expert:x.name||'-',nrp:x.nrp||'-',area:x.area||'-',pillar:x.pillar||'-',org:c.org||'-',expiry:toISODate(c.expiry)});
+  }));
+  return out.sort((a,b)=>a.name.localeCompare(b.name,'id',{sensitivity:'base'}) || b.year-a.year || a.expert.localeCompare(b.expert,'id',{sensitivity:'base'}));
+}
+function renderDashboardCertificationTable(){
+  const host=$('#dashboardCertTable'); if(!host)return;
+  const rows=certificationRecords();
+  if(!rows.length){host.innerHTML='<div class="empty"><strong>Belum ada peserta sertifikasi</strong>Data sertifikasi akan tampil di sini setelah tersedia.</div>';return;}
+  const shown=rows.slice(0,15);
+  let html='<div class="dashboard-cert-wrap"><table class="dashboard-cert-table"><thead><tr><th>Nama Sertifikasi</th><th>Tahun Penerbitan</th><th>Nama Expert</th><th>NRP</th><th>Lembaga</th><th>Pilar</th><th>Status</th></tr></thead><tbody>';
+  shown.forEach(r=>{
+    const st=certStatus(r.expiry);
+    html+=`<tr><td>${escapeHtml(r.name)}</td><td class="dashboard-cert-year">${r.year||'-'}</td><td><b>${escapeHtml(r.expert)}</b></td><td>${escapeHtml(r.nrp)}</td><td>${escapeHtml(r.org)}</td><td><span class="chip">${escapeHtml(r.pillar)}</span></td><td>${r.expiry?`<span class="chip ${st.cls}">${st.label}</span><br><span class="muted">${fmtDate(r.expiry)}</span>`:'<span class="chip">Tanpa expiry</span>'}</td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  if(rows.length>shown.length)html+=`<div class="help" style="margin-top:8px">Menampilkan ${shown.length} dari ${rows.length} record sertifikasi. Klik <b>Lihat Detail</b> untuk melihat seluruh peserta.</div>`;
+  host.innerHTML=html;
+}
+function openCertificationDashboardModal(){
+  const host=$('#certificationDashboardModalBody'); if(!host)return;
+  const rows=certificationRecords();
+  if(!rows.length){host.innerHTML='<div class="empty"><strong>Belum ada data sertifikasi</strong>Tidak ada peserta sertifikasi yang tersimpan.</div>';}
+  else{
+    host.innerHTML=`<div class="cert-modal-list">${rows.map((r,i)=>{const st=certStatus(r.expiry);return `<div class="cert-modal-item"><div class="cert-modal-main"><div><div class="cert-modal-name">${escapeHtml(r.name)}</div><div class="cert-modal-expert">${escapeHtml(r.expert)} <span class="muted">• ${escapeHtml(r.nrp)}</span></div><div class="cert-modal-meta">${escapeHtml(r.org)} • Pilar ${escapeHtml(r.pillar)} • Area ${escapeHtml(r.area)}</div></div><div class="cert-modal-name">${r.year||'-'}</div></div><div class="cert-modal-meta">${r.issueDate?`Diterbitkan ${fmtDate(r.issueDate)}`:'Tahun penerbitan tidak tersedia'} • ${r.expiry?`Berlaku s/d ${fmtDate(r.expiry)}`:'Tanpa tanggal berlaku'} ${r.expiry?`• <span class="chip ${st.cls}">${st.label}</span>`:''}</div></div>`}).join('')}</div>`;
+  }
+  $('#certificationDashboardModal').style.display='flex';
+}
+function dashboard(){const rows=dashboardData();const total=rows.length;const gen=aggregate(rows,'generation'),pillar=aggregate(rows,'pillar'),grade=aggregate(rows,'grade'),area=aggregate(rows,'area');const certCount=rows.reduce((n,r)=>n+r.certs.length,0);const k=[['Total Expert',total,'record',''],['Pilar Terisi',new Set(rows.map(r=>r.pillar).filter(v=>v!=='Tidak terisi')).size,'pilar',''],['Area Tercover',new Set(rows.map(r=>r.area).filter(v=>v!=='Tidak terisi')).size,'area',''],['Sertifikasi',certCount,'sertifikasi','openCertificationDashboardModal()']];$('#kpis').innerHTML=k.map(x=>`<div class="kpi ${x[3]?'kpi-clickable':''}" ${x[3]?`role="button" tabindex="0" onclick="${x[3]}" onkeydown="if(event.key==='Enter'||event.key===' ')${x[3]}`:''}><small>${x[0]}</small><strong>${x[1]}</strong><span>${x[2]}</span></div>`).join('');drawChart('genChart','doughnut',gen,'Expert');drawChart('pillarChart','bar',pillar,'Expert');renderPillarGradeMatrix(rows);const areas=Object.entries(area).filter(([name])=>name!=='Tidak terisi').sort((a,b)=>b[1]-a[1]).slice(0,10);$('#areaList').innerHTML=areas.length?areas.map(([name,n])=>`<div style="margin-bottom:10px"><div class="inline" style="justify-content:space-between"><b>${escapeHtml(name)}</b><span>${n}</span></div><div class="progress"><span style="width:${Math.round(n/Math.max(...areas.map(a=>a[1]))*100)}%"></span></div></div>`).join(''):'<div class="empty">Belum ada data area.</div>';const alerts=[];rows.forEach(x=>x.certs.forEach(c=>{if(c.expiry){const t=certStatus(c.expiry);if(t.cls==='red'||t.cls==='orange')alerts.push({x,c,t})}}));$('#certAlerts').innerHTML=alerts.length?alerts.slice(0,10).map(o=>`<div class="insight" style="margin-bottom:8px"><b>${escapeHtml(o.x.name)}</b> • ${escapeHtml(o.c.name||'Sertifikasi')}<br><span class="chip ${o.t.cls}">${o.t.label}</span> ${fmtDate(o.c.expiry)}</div>`).join(''):'<div class="insight"><span class="status-dot dot-green"></span>Tidak ada sertifikasi yang akan/ sudah expired dalam alert sederhana.</div>';renderDashboardCertificationTable();updateExperienceChrome();}
 function drawChart(id,type,obj,label){if(charts[id]){try{charts[id].destroy()}catch(e){}}const canvas=document.getElementById(id);if(!canvas)return;const labels=Object.keys(obj);const values=Object.values(obj);if(typeof Chart==='undefined'){const host=canvas.parentElement;host.innerHTML=`<div class="empty">Chart library belum tersedia. Data: ${escapeHtml(labels.map((k,i)=>`${k}: ${values[i]}`).join(' • ')||'Belum ada data')}</div>`;return}charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels:labels.length?labels:['Belum ada data'],datasets:[{label,data:labels.length?values:[0],borderWidth:1,borderRadius:type==='bar'?8:0}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:450},plugins:{legend:{display:type==='doughnut',position:'bottom'}},scales:type==='doughnut'?{}:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:'#e9eef5'}},x:{grid:{display:false}}}}})}
 function renderAll(){refreshDerivedData();hydrateAreaOptions();hydrateGenerationOptions();renderGradeGroupBar();renderTable();runQuality();updateStorageInfo();populateExpertSelector(editingId||'');dashboard()}
 function hydrateAreaOptions(){const cur=$('#fArea')?.value||'';const areas=[...new Set(experts.map(x=>x.area).filter(Boolean))].sort();if($('#fArea'))$('#fArea').innerHTML='<option value="">Semua Area</option>'+areas.map(a=>`<option ${a===cur?'selected':''}>${escapeHtml(a)}</option>`).join('')}
@@ -829,14 +935,14 @@ function commitImport(){
      /* Update-only merge: record lama tidak dihapus. Hanya field yang benar-benar berisi pada file import yang diperbarui. */
      const next={...old};
      const fields=['name','nrp','phone','email','area','pillar','birthDate','joinDate','education','grade'];
-     fields.forEach(k=>{if(!clean(row[k]))next[k]=k==='grade'?normalizeGrade(row[k]):row[k]});
+     fields.forEach(k=>{if(!clean(row[k])){if(k==='grade')next[k]=normalizeGrade(row[k]);else if(k==='birthDate'||k==='joinDate')next[k]=toISODate(row[k]);else next[k]=row[k]}});
      if(Array.isArray(row.achievements)&&row.achievements.length)next.achievements=row.achievements;
      if(Array.isArray(row.certifications)&&row.certifications.length)next.certifications=row.certifications;
      next.age=calcAge(next.birthDate);next.generation=getGeneration(next.birthDate);next.tenure=calcTenure(next.joinDate);
      next.updatedAt=now;next.createdAt=old.createdAt||now;
      experts[idx]=next;updated++;
    }else{
-     row.id=row.id||uid();row.grade=normalizeGrade(row.grade);row.age=calcAge(row.birthDate);row.generation=getGeneration(row.birthDate);row.tenure=calcTenure(row.joinDate);row.createdAt=row.createdAt||now;row.updatedAt=now;experts.push(row);added++;
+     row.id=row.id||uid();row.birthDate=toISODate(row.birthDate);row.joinDate=toISODate(row.joinDate);row.grade=normalizeGrade(row.grade);row.age=calcAge(row.birthDate);row.generation=getGeneration(row.birthDate);row.tenure=calcTenure(row.joinDate);row.createdAt=row.createdAt||now;row.updatedAt=now;experts.push(row);added++;
    }
  });
  save();closeModal('importModal');
